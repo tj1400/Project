@@ -1,4 +1,4 @@
-CFLAGS = -I ./include
+CFLAGS = -I ./include terryL.cpp
 LFLAGS = -lrt -lX11 -lGLU -lGL -pthread -lm #-lXrandr
 
 all: walk

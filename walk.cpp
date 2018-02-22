@@ -29,6 +29,7 @@ typedef Flt	Matrix[4][4];
 #define rnd() (((double)rand())/(double)RAND_MAX)
 #define random(a) (rand()%a)
 #define MakeVector(x, y, z, v) (v)[0]=(x),(v)[1]=(y),(v)[2]=(z)
+#define VecZero(v) (v)[0]=0.0,(v)[1]=0.0,(v)[2]=0.0
 #define VecCopy(a,b) (b)[0]=(a)[0];(b)[1]=(a)[1];(b)[2]=(a)[2]
 #define VecDot(a,b)	((a)[0]*(b)[0]+(a)[1]*(b)[1]+(a)[2]*(b)[2])
 #define VecSub(a,b,c) (c)[0]=(a)[0]-(b)[0]; \
@@ -40,9 +41,14 @@ const float gravity = -0.2f;
 #define ALPHA 1
 
 
+void walk();
+void walkBack();
+void jump();
+
 class Image {
 public:
 	int width, height;
+	float v[3];
 	unsigned char *data;
 	~Image() { delete [] data; }
 	Image(const char *fname) {
@@ -83,6 +89,10 @@ public:
 		}
 		unlink(ppmname);
 	}
+public:
+	Image() {
+	    VecZero(v);
+	}
 };
 Image img[1] = {"images/walk.gif"};
 
@@ -116,16 +126,21 @@ class Global {
 public:
 	int done;
 	int xres, yres;
-	int walk;
+	int walk, walk_back;
 	int walkFrame;
+	int hold;
+	int jump, jump_vel;
 	double delay;
 	GLuint walkTexture;
 	Vec box[20];
 	Global() {
 		done=0;
+		hold=0;
 		xres=800;
 		yres=600;
 		walk=0;
+		walk_back=0;
+		jump=0;
 		walkFrame=0;
 		delay = 0.1;
 		for (int i=0; i<20; i++) {
@@ -358,8 +373,18 @@ int checkKeys(XEvent *e)
 		return 0;
 	int key = (XLookupKeysym(&e->xkey, 0) & 0x0000ffff);
 	if (e->type == KeyRelease) {
-		if (key == XK_Shift_L || key == XK_Shift_R)
-			shift = 0;
+		//if (key == XK_Shift_L || key == XK_Shift_R)
+		//	shift = 0;
+		if (key == XK_Right)
+		{
+		    g.hold = 0;
+		    g.walk = 0;
+		}
+		if (key == XK_Left)
+		{
+		    g.hold = 0;
+		    g.walk_back = 0;
+		}
 		return 0;
 	}
 	if (key == XK_Shift_L || key == XK_Shift_R) {
@@ -370,23 +395,30 @@ int checkKeys(XEvent *e)
 	switch (key) {
 		case XK_w:
 			timers.recordTime(&timers.walkTime);
-			g.walk ^= 1;
 			break;
 		case XK_Left:
+			//g.walk_back = 1;
+			//g.hold = 1;
+			walkBack();
 			break;
 		case XK_Right:
+			walk();
 			break;
 		case XK_Up:
+			g.jump = 1;
+			jump(); 
 			break;
 		case XK_Down:
 			break;
 		case XK_equal:
+			/*
 			g.delay -= 0.005;
 			if (g.delay < 0.005)
 				g.delay = 0.005;
+			*/
 			break;
 		case XK_minus:
-			g.delay += 0.005;
+			//g.delay += 0.005;
 			break;
 		case XK_Escape:
 			return 1;
@@ -434,6 +466,27 @@ void physics(void)
 				g.box[i][0] += g.xres + 10.0;
 		}
 	}
+	if (g.walk_back) {
+		//man is walking backwards...
+		//when time is up, decrease the frame.
+		timers.recordTime(&timers.timeCurrent);
+		double timeSpan = timers.timeDiff(&timers.walkTime, &timers.timeCurrent);
+		if (timeSpan > g.delay) {
+			//decrease
+			--g.walkFrame;
+			if (g.walkFrame <= -1)
+				g.walkFrame += 16;
+			timers.recordTime(&timers.walkTime);
+		}
+		for (int i=0; i<20; i++) {
+			g.box[i][0] += 2.0 * (0.05 / g.delay);
+			if (g.box[i][0] < -10.0)
+				g.box[i][0] -= g.xres + 10.0;
+		}
+	}
+	if (g.jump) {
+
+	}
 }
 
 void render(void)
@@ -465,7 +518,7 @@ void render(void)
 	//glEnd();
 	//
 	//show boxes as background
-	for (int i=0; i<20; i++) {
+	/*for (int i=0; i<20; i++) {
 		glPushMatrix();
 		glTranslated(g.box[i][0],g.box[i][1],g.box[i][2]);
 		glColor3f(0.2, 0.2, 0.2);
@@ -476,7 +529,7 @@ void render(void)
 			glVertex2i(20,  0);
 		glEnd();
 		glPopMatrix();
-	}
+	}*/
 	float h = 200.0;
 	float w = h * 0.5;
 	glPushMatrix();
@@ -506,11 +559,8 @@ void render(void)
 	r.bot = g.yres - 20;
 	r.left = 10;
 	r.center = 0;
-	ggprint8b(&r, 16, c, "W   Walk cycle");
-	ggprint8b(&r, 16, c, "+   faster");
-	ggprint8b(&r, 16, c, "-   slower");
-	ggprint8b(&r, 16, c, "right arrow -> walk right");
-	ggprint8b(&r, 16, c, "left arrow  <- walk left");
+	ggprint8b(&r, 16, c, "hold right arrow to walk right");
+	ggprint8b(&r, 16, c, "hold left arrow to walk left");
 	ggprint8b(&r, 16, c, "frame: %i", g.walkFrame);
 }
 
