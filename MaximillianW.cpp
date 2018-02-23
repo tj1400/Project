@@ -1,4 +1,4 @@
-
+#include "fonts.h"
 void showhealth(int health){
 	Rect r;
 	r.bot = 300+200;

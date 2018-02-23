@@ -5,9 +5,10 @@
 //project file for movement using the walk framework.
 //#include "walk.cpp"
 
-int walk()
+void walk(int *walk,int *hold)
 {
-    return 1;
+    *walk=1;
+    *hold=1;
 }
 
 //void phy2(int &walkFrame,Timers timers)
@@ -25,9 +26,10 @@ int walk()
                 //}
 //}
 
-int walkBack()
+void walkBack(int *walk_back,int *hold)
 {
-    return 1;
+    *walk_back=1;
+    *hold=1;
 }
 
 void jump()

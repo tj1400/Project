@@ -19,8 +19,7 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "fonts.h"
-#include "terryL.cpp"
-#include "MaximillianW.cpp"
+
 
 //defined types
 typedef double Flt;
@@ -43,9 +42,10 @@ const float gravity = -0.2f;
 #define ALPHA 1
 
 
-//void walk(int *walk,int *hold);
-//void walkBack(int *walk_back,int *hold);
-//void jump();
+void walk(int *walk,int *hold);
+void walkBack(int *walk_back,int *hold);
+void jump();
+void showhealth(int);
 
 class Image {
 public:
@@ -421,15 +421,13 @@ int checkKeys(XEvent *e)
 			timers.recordTime(&timers.walkTime);
 			break;
 		case XK_Left:
-			g.walk_back = 1;
-			g.hold = 1;
+			walkBack(&g.walk_back,&g.hold);
 			//g.walk_back=walkBack();
 			//timers.recordTime(&timers.walkTime);
 			break;
 		case XK_Right:
 		//timers.recordTime(&timers.walkTime);
-			g.walk=1;
-			g.hold=1;
+			walk(&g.walk,&g.hold);
 			break;
 		case XK_Up:
 			g.jump = 1;
@@ -586,7 +584,7 @@ void render(void)
 	r.bot = g.yres - 20;
 	r.left = 10;
 	r.center = 0;
-	showhealth(75);
+	showhealth(100);
 	ggprint8b(&r, 16, c, "hold right arrow to walk right");
 	ggprint8b(&r, 16, c, "hold left arrow to walk left");
 	ggprint8b(&r, 16, c, "frame: %i", g.walkFrame);
