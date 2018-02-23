@@ -5,31 +5,29 @@
 //project file for movement using the walk framework.
 //#include "walk.cpp"
 
-void walk()
+int walk()
 {
-    g.walk = 1;
-    g.hold = 1;
+    return 1;
 }
 
-void phy2()
-{
-//man is walking...
-                //when time is up, advance the frame.
-                timers.recordTime(&timers.timeCurrent);
-                double timeSpan = timers.timeDiff(&timers.walkTime, &timers.timeCurrent);
-                if (timeSpan > .01) {
-                        //advance
-                        ++g.walkFrame;
-                        if (g.walkFrame >= 16)
-                                g.walkFrame -= 16;
-                        timers.recordTime(&timers.walkTime);
-                }
-}
+//void phy2(int &walkFrame,Timers timers)
+//{
+////man is walking...
+                ////when time is up, advance the frame.
+                //timers.recordTime(&timers.timeCurrent);
+                //double timeSpan = timers.timeDiff(&timers.walkTime, &timers.timeCurrent);
+                //if (timeSpan > .01) {
+                        ////advance
+                        //++walkFrame;
+                        //if (walkFrame >= 16)
+                                //g.walkFrame -= 16;
+                        //timers.recordTime(&timers.walkTime);
+                //}
+//}
 
-void walkBack()
+int walkBack()
 {
-    g.walk_back = 1;
-    g.hold = 1;
+    return 1;
 }
 
 void jump()

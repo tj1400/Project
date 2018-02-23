@@ -19,6 +19,7 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "fonts.h"
+#include "terryL.cpp"
 
 //defined types
 typedef double Flt;
@@ -41,9 +42,9 @@ const float gravity = -0.2f;
 #define ALPHA 1
 
 
-void walk();
-void walkBack();
-void jump();
+//void walk(int *walk,int *hold);
+//void walkBack(int *walk_back,int *hold);
+//void jump();
 
 class Image {
 public:
@@ -155,6 +156,7 @@ class X11_wrapper {
 private:
 	Display *dpy;
 	Window win;
+	GC gc;
 public:
 	X11_wrapper() {
 		GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
@@ -216,6 +218,15 @@ public:
 			reshapeWindow(xce.width, xce.height);
 		}
 	}
+	void setColor3i(int r, int g, int b) {
+            unsigned long cref = 0L;
+            cref += r;
+            cref <<= 8;
+            cref += g;
+            cref <<= 8;
+            cref += b;
+            XSetForeground(dpy, gc, cref);
+        }
 	bool getXPending() {
 		return XPending(dpy);
 	}
@@ -227,6 +238,17 @@ public:
 	void swapBuffers() {
 		glXSwapBuffers(dpy, win);
 	}
+	void showImage(Image *img){
+            //int offsetx=g.xres/2-img->width/2, offsety=g.yres/2-img->height/2;
+            for(int i=0;i<img->height;i++){
+                for(int j=0;j<img->width;j++){
+                    int r1 = img->data[i*img->width*3+j*3+0];
+                    int g1 = img->data[i*img->width*3+j*3+1];
+                    int b1 = img->data[i*img->width*3+j*3+2];
+                    setColor3i(r1,g1,b1);                
+                    }
+                }
+            }
 
 } x11;
 
@@ -394,15 +416,19 @@ int checkKeys(XEvent *e)
 	(void)shift;
 	switch (key) {
 		case XK_w:
+		//printf("this isnt working");
 			timers.recordTime(&timers.walkTime);
 			break;
 		case XK_Left:
-			//g.walk_back = 1;
-			//g.hold = 1;
-			walkBack();
+			g.walk_back = 1;
+			g.hold = 1;
+			//g.walk_back=walkBack();
+			//timers.recordTime(&timers.walkTime);
 			break;
 		case XK_Right:
-			walk();
+		//timers.recordTime(&timers.walkTime);
+			g.walk=1;
+			g.hold=1;
 			break;
 		case XK_Up:
 			g.jump = 1;
