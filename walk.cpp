@@ -20,6 +20,7 @@
 #include <GL/glx.h>
 #include "fonts.h"
 #include "terryL.cpp"
+#include "MaximillianW.cpp"
 
 //defined types
 typedef double Flt;
@@ -525,14 +526,14 @@ void render(void)
 	float cy = g.yres/2.0;
 	//
 	//show ground
-	glBegin(GL_QUADS);
-		glColor3f(0.2, 0.2, 0.2);
-		glVertex2i(0,       220);
-		glVertex2i(g.xres, 220);
-		glColor3f(0.4, 0.4, 0.4);
-		glVertex2i(g.xres,   0);
-		glVertex2i(0,         0);
-	glEnd();
+	//glBegin(GL_QUADS);
+	//	glColor3f(0.2, 0.2, 0.2);
+	//	glVertex2i(0,       220);
+	//	glVertex2i(g.xres, 220);
+	//	glColor3f(0.4, 0.4, 0.4);
+	//	glVertex2i(g.xres,   0);
+	//	glVertex2i(0,         0);
+	//glEnd();
 	//
 	//fake shadow
 	//glColor3f(0.25, 0.25, 0.25);
@@ -585,6 +586,7 @@ void render(void)
 	r.bot = g.yres - 20;
 	r.left = 10;
 	r.center = 0;
+	showhealth(75);
 	ggprint8b(&r, 16, c, "hold right arrow to walk right");
 	ggprint8b(&r, 16, c, "hold left arrow to walk left");
 	ggprint8b(&r, 16, c, "frame: %i", g.walkFrame);
