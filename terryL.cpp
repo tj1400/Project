@@ -4,6 +4,12 @@
 //
 //project file for movement using the walk framework.
 //#include "walk.cpp"
+#include "fonts.h"
+
+void name1(Rect *r, int x, unsigned int c)
+{
+    ggprint8b(&r, x, c, "Terry Langhardt")
+}
 
 void walk(int *walk,int *hold)
 {
