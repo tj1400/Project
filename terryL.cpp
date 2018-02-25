@@ -1,7 +1,7 @@
 //3350
 //author: Terry langhardt
 //date: 2/22/18
-//
+//comment
 //project file for movement using the walk framework.
 //#include "walk.cpp"
 #include "fonts.h"
@@ -9,7 +9,7 @@ extern Rect r;
 
 void name1(int x, unsigned int c)
 {
-    ggprint8b(&r, x, c, "Terry Langhardt")
+    ggprint8b(&r, x, c, "Terry Langhardt");
 }
 
 void walk(int *walk,int *hold)
