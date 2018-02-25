@@ -589,7 +589,7 @@ void render(void)
 	ggprint8b(&r, 16, c, "hold right arrow to walk right");
 	ggprint8b(&r, 16, c, "hold left arrow to walk left");
 	ggprint8b(&r, 16, c, "frame: %i", g.walkFrame);
-	name1(&r, 16, c);
+	name1(16, c);
 }
 
 
