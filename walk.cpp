@@ -45,7 +45,7 @@ const float gravity = -0.2f;
 void walk(int *walk,int *hold);
 void walkBack(int *walk_back,int *hold);
 void jump();
-void showhealth(int,int);
+void showhealth(int,float,float,float,int);
 void name1(Rect r,int x, unsigned int c); 
 
 class Image {
@@ -135,6 +135,7 @@ public:
 	int walk, walk_back;
 	int walkFrame;
 	int hold;
+	int health;
 	int jump, jump_vel;
 	double delay;
 	int name;
@@ -143,6 +144,7 @@ public:
 	Global() {
 		done=0;
 		name=0;
+		health=100;
 		hold=0;
 		xres=800;
 		yres=600;
@@ -592,7 +594,7 @@ void render(void)
 	r.bot = g.yres - 20;
 	r.left = 10;
 	r.center = 0;
-	showhealth(100,g.name);
+	showhealth(g.health,cx,cy,h,g.name);
 	ggprint8b(&r, 16, c, "hold right arrow to walk right");
 	ggprint8b(&r, 16, c, "hold left arrow to walk left");
 	ggprint8b(&r, 16, c, "press n to toggle name");
