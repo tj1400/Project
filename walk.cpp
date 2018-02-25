@@ -46,7 +46,7 @@ void walk(int *walk,int *hold);
 void walkBack(int *walk_back,int *hold);
 void jump();
 void showhealth(int);
-void name1(Rect *r, int x, unsigned int c); 
+void name1(int x, unsigned int c); 
 
 class Image {
 public:
