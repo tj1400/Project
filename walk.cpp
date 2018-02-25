@@ -101,6 +101,8 @@ public:
 	}
 };
 Image img[1] = {"images/walk.gif"};
+Image temp1[1] = {"images/walk.gif"};
+Image temp2[1] = {"images/walkBack.gif"};
 
 
 //-----------------------------------------------------------------------------
@@ -127,32 +129,52 @@ public:
 	}
 } timers;
 //-----------------------------------------------------------------------------
-
+class Player {
+	public:
+	int health;
+	int h;
+	int w;
+	int walk;
+	int walk_back;
+	Vec position;
+	Vec vel;
+	int name;
+	int hold;
+	int dir;
+	int walkFrame;
+	double delay;
+	int jump;
+	Player(){
+		health=100;
+		name=1;
+		dir=1;
+		h=50;
+		w=h/2;
+		jump=0;
+		hold=0;
+		walk=0;
+		walk_back=0;
+		walkFrame=0;
+		delay=0.1;
+		position[0]=400;
+		position[1]=300;
+		vel[0]=0.0;
+		vel[1]=0.0;
+	}
+} p;
 class Global {
 public:
 	int done;
 	int xres, yres;
-	int walk, walk_back;
-	int walkFrame;
-	int hold;
-	int health;
-	int jump, jump_vel;
-	double delay;
 	int name;
 	GLuint walkTexture;
+	GLuint walkBackTexture;
 	Vec box[20];
 	Global() {
 		done=0;
 		name=0;
-		health=100;
-		hold=0;
 		xres=800;
 		yres=600;
-		walk=0;
-		walk_back=0;
-		jump=0;
-		walkFrame=0;
-		delay = 0.1;
 		for (int i=0; i<20; i++) {
 			box[i][0] = rnd() * xres;
 			box[i][1] = rnd() * (yres-220) + 220.0;
@@ -364,6 +386,20 @@ void initOpengl(void)
 		GL_RGBA, GL_UNSIGNED_BYTE, walkData);
 	//free(walkData);
 	//unlink("./images/walk.ppm");
+	glGenTextures(1, &g.walkBackTexture);
+	//-------------------------------------------------------------------------
+	//silhouette
+	//this is similar to a sprite graphic
+	//
+	glBindTexture(GL_TEXTURE_2D, g.walkBackTexture);
+	//
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	//
+	//must build a new set of data...
+	unsigned char *walkBackData = buildAlphaData(&temp2[0]);	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+		GL_RGBA, GL_UNSIGNED_BYTE, walkBackData);
 	//-------------------------------------------------------------------------
 }
 
@@ -408,13 +444,13 @@ int checkKeys(XEvent *e)
 		//	shift = 0;
 		if (key == XK_Right)
 		{
-		    g.hold = 0;
-		    g.walk = 0;
+		    p.hold = 0;
+		    p.walk = 0;
 		}
 		if (key == XK_Left)
 		{
-		    g.hold = 0;
-		    g.walk_back = 0;
+		    p.hold = 0;
+		    p.walk_back = 0;
 		}
 		return 0;
 	}
@@ -428,16 +464,27 @@ int checkKeys(XEvent *e)
 			timers.recordTime(&timers.walkTime);
 			break;
 		case XK_Left:
-			walkBack(&g.walk_back,&g.hold);
+			p.dir=0;
+			walkBack(&p.walk_back,&p.hold);
+			img[0]=temp2[0];
+			p.vel[0]=-1.5;
 			break;
 		case XK_Right:
-			walk(&g.walk,&g.hold);
+			p.dir=1;
+			walk(&p.walk,&p.hold);
+			img[0]=temp1[0];
+			p.vel[0]=1.5;
 			break;
 		case XK_Up:
-			g.jump = 1;
+			p.jump = 1;
 			jump(); 
 			break;
 		case XK_Down:
+			break;
+		case XK_h:
+			p.health-=10;
+			if(p.health<0)
+				p.health=0;
 			break;
 		case XK_equal:
 			/*
@@ -483,55 +530,54 @@ Flt VecNormalize(Vec vec)
 
 void physics(void)
 {
-	if (g.walk) {
+	if (p.walk&&p.vel[0]!=0.0) {
 		//man is walking...
 		//when time is up, advance the frame.
 		timers.recordTime(&timers.timeCurrent);
 		double timeSpan = timers.timeDiff(&timers.walkTime, &timers.timeCurrent);
-		if (timeSpan > g.delay) {
+		if (timeSpan > p.delay) {
 			//advance
-			++g.walkFrame;
-			if (g.walkFrame >= 16)
-				g.walkFrame -= 16;
+			++p.walkFrame;
+			if (p.walkFrame >= 16)
+				p.walkFrame -= 16;
 			timers.recordTime(&timers.walkTime);
 		}
-		for (int i=0; i<20; i++) {
-			g.box[i][0] -= 2.0 * (0.05 / g.delay);
-			if (g.box[i][0] < -10.0)
-				g.box[i][0] += g.xres + 10.0;
-		}
+		//for (int i=0; i<20; i++) {
+			//g.box[i][0] -= 2.0 * (0.05 / p.delay);
+			//if (g.box[i][0] < -10.0)
+				//g.box[i][0] += g.xres + 10.0;
+		//}
 	}
-	if (g.walk_back) {
+	if (p.walk_back&&p.vel[0]<0.0) {
 		//man is walking backwards...
 		//when time is up, decrease the frame.
 		timers.recordTime(&timers.timeCurrent);
 		double timeSpan = timers.timeDiff(&timers.walkTime, &timers.timeCurrent);
-		if (timeSpan > g.delay) {
+		if (timeSpan > p.delay) {
 			//decrease
-			--g.walkFrame;
-			if (g.walkFrame <= -1)
-				g.walkFrame += 16;
+			--p.walkFrame;
+			if (p.walkFrame <= -1)
+				p.walkFrame += 16;
 			timers.recordTime(&timers.walkTime);
 		}
-		for (int i=0; i<20; i++) {
-			g.box[i][0] += 2.0 * (0.05 / g.delay);
-			if (g.box[i][0] < -10.0)
-				g.box[i][0] -= g.xres + 10.0;
-		}
+		//for (int i=0; i<20; i++) {
+			//g.box[i][0] += 2.0 * (0.05 / p.delay);
+			//if (g.box[i][0] < -10.0)
+				//g.box[i][0] -= g.xres + 10.0;
+		//}
 	}
-	if (g.jump) {
+	if (p.jump) {
 
 	}
 }
 
 void render(void)
 {
+	p.position[0]+=p.vel[0];
 	Rect r;
 	//Clear the screen
 	glClearColor(0.1, 0.1, 0.1, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
-	float cx = g.xres/2.0;
-	float cy = g.yres/2.0;
 	//
 	//show ground
 	//glBegin(GL_QUADS);
@@ -565,26 +611,27 @@ void render(void)
 		glEnd();
 		glPopMatrix();
 	}*/
-	float h = 200.0;
-	float w = h * 0.5;
 	glPushMatrix();
 	glColor3f(1.0, 1.0, 1.0);
-	glBindTexture(GL_TEXTURE_2D, g.walkTexture);
+	if(p.dir==0)
+		glBindTexture(GL_TEXTURE_2D, g.walkBackTexture);
+	if(p.dir==1)
+		glBindTexture(GL_TEXTURE_2D, g.walkTexture);
 	//
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.0f);
 	glColor4ub(255,255,255,255);
-	int ix = g.walkFrame % 8;
+	int ix = p.walkFrame % 8;
 	int iy = 0;
-	if (g.walkFrame >= 8)
+	if (p.walkFrame >= 8)
 		iy = 1;
 	float tx = (float)ix / 8.0;
 	float ty = (float)iy / 2.0;
 	glBegin(GL_QUADS);
-		glTexCoord2f(tx,      ty+.5); glVertex2i(cx-w, cy-h);
-		glTexCoord2f(tx,      ty);    glVertex2i(cx-w, cy+h);
-		glTexCoord2f(tx+.125, ty);    glVertex2i(cx+w, cy+h);
-		glTexCoord2f(tx+.125, ty+.5); glVertex2i(cx+w, cy-h);
+		glTexCoord2f(tx,      ty+.5); glVertex2i(p.position[0]-p.w, p.position[1]-p.h);
+		glTexCoord2f(tx,      ty);    glVertex2i(p.position[0]-p.w, p.position[1]+p.h);
+		glTexCoord2f(tx+.125, ty);    glVertex2i(p.position[0]+p.w, p.position[1]+p.h);
+		glTexCoord2f(tx+.125, ty+.5); glVertex2i(p.position[0]+p.w, p.position[1]-p.h);
 	glEnd();
 	glPopMatrix();
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -594,12 +641,13 @@ void render(void)
 	r.bot = g.yres - 20;
 	r.left = 10;
 	r.center = 0;
-	showhealth(g.health,cx,cy,h,g.name);
+	showhealth(p.health,p.position[0],p.position[1],p.h,g.name);
 	ggprint8b(&r, 16, c, "hold right arrow to walk right");
 	ggprint8b(&r, 16, c, "hold left arrow to walk left");
 	ggprint8b(&r, 16, c, "press n to toggle name");
-	ggprint8b(&r, 16, c, "frame: %i", g.walkFrame);
+	ggprint8b(&r, 16, c, "frame: %i", p.walkFrame);
 	name1(r,16, c);
+	p.vel[0]=0.0;
 }
 
 

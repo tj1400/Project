@@ -11,7 +11,7 @@
 #include <GL/glx.h>
 void showhealth(int health,float cx,float cy,float h,int name){
 	Rect r;
-	r.bot = cy+h-16;
+	r.bot = cy+h-(h/400)*16;
 	r.left = cx;
 	r.center = cx;
 	unsigned int c;
@@ -33,10 +33,10 @@ void showhealth(int health,float cx,float cy,float h,int name){
 	//print health bar-----------------------
 	glBegin(GL_QUADS);
 	glColor3ub(150,150,150);
-	glVertex2i(cx*2-5,cy*2-5);
-	glVertex2i(cx*2-5,cy*2-40);
-	glVertex2i(cx*2-15-300,cy*2-40);
-	glVertex2i(cx*2-15-300,cy*2-5);
+	glVertex2i(400*2-5,300*2-5);
+	glVertex2i(400*2-5,300*2-40);
+	glVertex2i(400*2-15-300,300*2-40);
+	glVertex2i(400*2-15-300,300*2-5);
 	glEnd();
 	
 	glBegin(GL_QUADS);
@@ -49,16 +49,16 @@ void showhealth(int health,float cx,float cy,float h,int name){
 	if(health<25)
 		glColor3ub(255,0,0);
 	
-	glVertex2i(cx*2-10,cy*2-10);
-	glVertex2i(cx*2-10,cy*2-35);
-	glVertex2i(cx*2-10-health*3,cy*2-35);
-	glVertex2i(cx*2-10-health*3,cy*2-10);
+	glVertex2i(400*2-10,300*2-10);
+	glVertex2i(400*2-10,300*2-35);
+	glVertex2i(400*2-10-health*3,300*2-35);
+	glVertex2i(400*2-10-health*3,300*2-10);
 	glEnd();
 	
 	c=0x00000000;
-	r.bot=cy*2-30;
-	r.left=cx*2-10-150;
-	r.center=cx*2-10-150;
+	r.bot=300*2-30;
+	r.left=400*2-10-150;
+	r.center=400*2-10-150;
 	ggprint8b(&r, 16, c, "HEALTH: %i%",health);
 }
 
