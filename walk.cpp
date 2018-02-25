@@ -26,7 +26,7 @@ typedef double Flt;
 typedef double Vec[3];
 typedef Flt	Matrix[4][4];
 
-//macros
+//macros 
 #define rnd() (((double)rand())/(double)RAND_MAX)
 #define random(a) (rand()%a)
 #define MakeVector(x, y, z, v) (v)[0]=(x),(v)[1]=(y),(v)[2]=(z)
@@ -45,15 +45,17 @@ const float gravity = -0.2f;
 void walk(int *walk,int *hold);
 void walkBack(int *walk_back,int *hold);
 void jump();
-void showhealth(int);
-void name1(int x, unsigned int c); 
+void showhealth(int,int);
+void name1(Rect r,int x, unsigned int c); 
 
 class Image {
 public:
 	int width, height;
 	float v[3];
 	unsigned char *data;
-	~Image() { delete [] data; }
+	~Image() {
+		delete [] data;
+		}
 	Image(const char *fname) {
 		if (fname[0] == '\0')
 			return;
@@ -86,7 +88,8 @@ public:
 			for (int i=0; i<n; i++)
 				data[i] = fgetc(fpi);
 			fclose(fpi);
-		} else {
+		}
+		else {
 			printf("ERROR opening image: %s\n",ppmname);
 			exit(0);
 		}
@@ -134,10 +137,12 @@ public:
 	int hold;
 	int jump, jump_vel;
 	double delay;
+	int name;
 	GLuint walkTexture;
 	Vec box[20];
 	Global() {
 		done=0;
+		name=0;
 		hold=0;
 		xres=800;
 		yres=600;
@@ -418,16 +423,12 @@ int checkKeys(XEvent *e)
 	(void)shift;
 	switch (key) {
 		case XK_w:
-		//printf("this isnt working");
 			timers.recordTime(&timers.walkTime);
 			break;
 		case XK_Left:
 			walkBack(&g.walk_back,&g.hold);
-			//g.walk_back=walkBack();
-			//timers.recordTime(&timers.walkTime);
 			break;
 		case XK_Right:
-		//timers.recordTime(&timers.walkTime);
 			walk(&g.walk,&g.hold);
 			break;
 		case XK_Up:
@@ -445,6 +446,12 @@ int checkKeys(XEvent *e)
 			break;
 		case XK_minus:
 			//g.delay += 0.005;
+			break;
+		case XK_n:
+			if(g.name==0)
+				g.name=1;
+			else
+				g.name=0;
 			break;
 		case XK_Escape:
 			return 1;
@@ -585,11 +592,12 @@ void render(void)
 	r.bot = g.yres - 20;
 	r.left = 10;
 	r.center = 0;
-	showhealth(100);
+	showhealth(100,g.name);
 	ggprint8b(&r, 16, c, "hold right arrow to walk right");
 	ggprint8b(&r, 16, c, "hold left arrow to walk left");
+	ggprint8b(&r, 16, c, "press n to toggle name");
 	ggprint8b(&r, 16, c, "frame: %i", g.walkFrame);
-	name1(16, c);
+	name1(r,16, c);
 }
 
 
