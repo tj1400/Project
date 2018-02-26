@@ -45,7 +45,7 @@ const float gravity = -0.2f;
 void walk(int *walk,int *hold);
 void walkBack(int *walk_back,int *hold);
 void jump();
-void showhealth(int,float,float,float,int);
+void showhealth(int,float,float,float,int,int);
 void name1(Rect r,int x, unsigned int c); 
 
 class Image {
@@ -418,6 +418,8 @@ void initOpengl(void)
 void init() {
 	p[0].position[0]=200;
 	p[1].position[0]=600;
+	p[0].dir=1;
+	p[1].dir=0;
 }
 
 void checkMouse(XEvent *e)
@@ -491,22 +493,18 @@ int checkKeys(XEvent *e)
 			timers.recordTime(&timers.walkTime[0]);
 			break;
 		case XK_Left:
-			p[0].dir=0;
 			walkBack(&p[0].walk_back,&p[0].hold);
 			p[0].vel[0]=-1.5;
 			break;
 		case XK_Right:
-			p[0].dir=1;
 			walk(&p[0].walk,&p[0].hold);
 			p[0].vel[0]=1.5;
 			break;
 		case XK_a:
-			p[1].dir=0;
 			walkBack(&p[1].walk_back,&p[1].hold);
 			p[1].vel[0]=-1.5;
 			break;
 		case XK_d:
-			p[1].dir=1;
 			walk(&p[1].walk,&p[1].hold);
 			p[1].vel[0]=1.5;
 			break;
@@ -610,6 +608,18 @@ void physics(void)
 
 void render(void)
 {
+	if(p[0].position[0]-p[1].position[0]<0){
+		p[0].dir=1;
+	}
+	else{
+		p[0].dir=0;
+	}
+	if(p[0].dir==1){
+		p[1].dir=0;
+	}
+	else{
+		p[1].dir=1;
+	}
 	Rect r;
 	//Clear the screen
 	glClearColor(0.1, 0.1, 0.1, 1.0);
@@ -674,7 +684,7 @@ void render(void)
 	glPopMatrix();
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDisable(GL_ALPHA_TEST);
-	showhealth(p[i].health,p[i].position[0],p[i].position[1],p[i].h,g.name);
+	showhealth(p[i].health,p[i].position[0],p[i].position[1],p[i].h,g.name,i);
 }
 	//
 	unsigned int c = 0x00ffff44;
