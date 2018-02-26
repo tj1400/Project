@@ -100,9 +100,10 @@ public:
 	    VecZero(v);
 	}
 };
-Image img[1] = {"images/walk.gif"};
-Image temp1[1] = {"images/walk.gif"};
-Image temp2[1] = {"images/walkBack.gif"};
+Image img1[1] = {"images/walk.gif"};
+Image img2[1] = {"images/walk.gif"};
+Image img1b[1] = {"images/walkBack.gif"};
+Image img2b[1] = {"images/walkBack.gif"};
 
 
 //-----------------------------------------------------------------------------
@@ -111,8 +112,9 @@ class Timers {
 public:
 	double physicsRate;
 	double oobillion;
-	struct timespec timeStart, timeEnd, timeCurrent;
-	struct timespec walkTime;
+	struct timespec timeStart, timeEnd;
+	struct timespec timeCurrent[2];
+	struct timespec walkTime[2];
 	Timers() {
 		physicsRate = 1.0 / 30.0;
 		oobillion = 1.0 / 1e9;
@@ -161,7 +163,7 @@ class Player {
 		vel[0]=0.0;
 		vel[1]=0.0;
 	}
-} p;
+} p[2];
 class Global {
 public:
 	int done;
@@ -169,6 +171,8 @@ public:
 	int name;
 	GLuint walkTexture;
 	GLuint walkBackTexture;
+	GLuint walkTexture2;
+	GLuint walkBackTexture2;
 	Vec box[20];
 	Global() {
 		done=0;
@@ -366,8 +370,8 @@ void initOpengl(void)
 	//
 	//load the images file into a ppm structure.
 	//
-	int w = img[0].width;
-	int h = img[0].height;
+	int w = img1[0].width;
+	int h = img1[0].height;
 	//
 	//create opengl texture elements
 	glGenTextures(1, &g.walkTexture);
@@ -381,30 +385,39 @@ void initOpengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	//
 	//must build a new set of data...
-	unsigned char *walkData = buildAlphaData(&img[0]);	
+	unsigned char *walkData = buildAlphaData(&img1[0]);	
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
 		GL_RGBA, GL_UNSIGNED_BYTE, walkData);
 	//free(walkData);
 	//unlink("./images/walk.ppm");
 	glGenTextures(1, &g.walkBackTexture);
 	//-------------------------------------------------------------------------
-	//silhouette
-	//this is similar to a sprite graphic
-	//
 	glBindTexture(GL_TEXTURE_2D, g.walkBackTexture);
-	//
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	//
-	//must build a new set of data...
-	unsigned char *walkBackData = buildAlphaData(&temp2[0]);	
+	unsigned char *walkBackData = buildAlphaData(&img1b[0]);	
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
 		GL_RGBA, GL_UNSIGNED_BYTE, walkBackData);
+	//-------------------------------------------------------------------------
+	glBindTexture(GL_TEXTURE_2D, g.walkTexture2);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	unsigned char *walkData2 = buildAlphaData(&img2[0]);	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+		GL_RGBA, GL_UNSIGNED_BYTE, walkData2);
+	//-------------------------------------------------------------------------
+	glBindTexture(GL_TEXTURE_2D, g.walkBackTexture2);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	unsigned char *walkBackData2 = buildAlphaData(&img2b[0]);	
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
+		GL_RGBA, GL_UNSIGNED_BYTE, walkBackData2);
 	//-------------------------------------------------------------------------
 }
 
 void init() {
-
+	p[0].position[0]=200;
+	p[1].position[0]=600;
 }
 
 void checkMouse(XEvent *e)
@@ -444,13 +457,27 @@ int checkKeys(XEvent *e)
 		//	shift = 0;
 		if (key == XK_Right)
 		{
-		    p.hold = 0;
-		    p.walk = 0;
+		    p[0].hold = 0;
+		    p[0].walk = 0;
+		    p[0].vel[0]=0.0;
 		}
 		if (key == XK_Left)
 		{
-		    p.hold = 0;
-		    p.walk_back = 0;
+		    p[0].hold = 0;
+		    p[0].walk_back = 0;
+		    p[0].vel[0]=0.0;
+		}
+		if (key == XK_d)
+		{
+		    p[1].hold = 0;
+		    p[1].walk = 0;
+		    p[1].vel[0]=0.0;
+		}
+		if (key == XK_a)
+		{
+		    p[1].hold = 0;
+		    p[1].walk_back = 0;
+		    p[1].vel[0]=0.0;
 		}
 		return 0;
 	}
@@ -461,30 +488,38 @@ int checkKeys(XEvent *e)
 	(void)shift;
 	switch (key) {
 		case XK_w:
-			timers.recordTime(&timers.walkTime);
+			timers.recordTime(&timers.walkTime[0]);
 			break;
 		case XK_Left:
-			p.dir=0;
-			walkBack(&p.walk_back,&p.hold);
-			img[0]=temp2[0];
-			p.vel[0]=-1.5;
+			p[0].dir=0;
+			walkBack(&p[0].walk_back,&p[0].hold);
+			p[0].vel[0]=-1.5;
 			break;
 		case XK_Right:
-			p.dir=1;
-			walk(&p.walk,&p.hold);
-			img[0]=temp1[0];
-			p.vel[0]=1.5;
+			p[0].dir=1;
+			walk(&p[0].walk,&p[0].hold);
+			p[0].vel[0]=1.5;
+			break;
+		case XK_a:
+			p[1].dir=0;
+			walkBack(&p[1].walk_back,&p[1].hold);
+			p[1].vel[0]=-1.5;
+			break;
+		case XK_d:
+			p[1].dir=1;
+			walk(&p[1].walk,&p[1].hold);
+			p[1].vel[0]=1.5;
 			break;
 		case XK_Up:
-			p.jump = 1;
+			p[0].jump = 1;
 			jump(); 
 			break;
 		case XK_Down:
 			break;
 		case XK_h:
-			p.health-=10;
-			if(p.health<0)
-				p.health=0;
+			p[0].health-=10;
+			if(p[0].health<0)
+				p[0].health=0;
 			break;
 		case XK_equal:
 			/*
@@ -530,17 +565,18 @@ Flt VecNormalize(Vec vec)
 
 void physics(void)
 {
-	if (p.walk&&p.vel[0]!=0.0) {
+	for(int i=0;i<2;i++){
+	if (p[i].walk&&p[i].vel[0]!=0.0) {
 		//man is walking...
 		//when time is up, advance the frame.
-		timers.recordTime(&timers.timeCurrent);
-		double timeSpan = timers.timeDiff(&timers.walkTime, &timers.timeCurrent);
-		if (timeSpan > p.delay) {
+		timers.recordTime(&timers.timeCurrent[i]);
+		double timeSpan = timers.timeDiff(&timers.walkTime[i], &timers.timeCurrent[i]);
+		if (timeSpan > p[i].delay) {
 			//advance
-			++p.walkFrame;
-			if (p.walkFrame >= 16)
-				p.walkFrame -= 16;
-			timers.recordTime(&timers.walkTime);
+			++p[i].walkFrame;
+			if (p[i].walkFrame >= 16)
+				p[i].walkFrame -= 16;
+			timers.recordTime(&timers.walkTime[i]);
 		}
 		//for (int i=0; i<20; i++) {
 			//g.box[i][0] -= 2.0 * (0.05 / p.delay);
@@ -548,17 +584,17 @@ void physics(void)
 				//g.box[i][0] += g.xres + 10.0;
 		//}
 	}
-	if (p.walk_back&&p.vel[0]<0.0) {
+	if (p[i].walk_back&&p[i].vel[0]<0.0) {
 		//man is walking backwards...
 		//when time is up, decrease the frame.
-		timers.recordTime(&timers.timeCurrent);
-		double timeSpan = timers.timeDiff(&timers.walkTime, &timers.timeCurrent);
-		if (timeSpan > p.delay) {
+		timers.recordTime(&timers.timeCurrent[i]);
+		double timeSpan = timers.timeDiff(&timers.walkTime[i], &timers.timeCurrent[i]);
+		if (timeSpan > p[i].delay) {
 			//decrease
-			--p.walkFrame;
-			if (p.walkFrame <= -1)
-				p.walkFrame += 16;
-			timers.recordTime(&timers.walkTime);
+			--p[i].walkFrame;
+			if (p[i].walkFrame <= -1)
+				p[i].walkFrame += 16;
+			timers.recordTime(&timers.walkTime[i]);
 		}
 		//for (int i=0; i<20; i++) {
 			//g.box[i][0] += 2.0 * (0.05 / p.delay);
@@ -566,14 +602,14 @@ void physics(void)
 				//g.box[i][0] -= g.xres + 10.0;
 		//}
 	}
-	if (p.jump) {
+	if (p[i].jump) {
 
 	}
+}
 }
 
 void render(void)
 {
-	p.position[0]+=p.vel[0];
 	Rect r;
 	//Clear the screen
 	glClearColor(0.1, 0.1, 0.1, 1.0);
@@ -611,43 +647,46 @@ void render(void)
 		glEnd();
 		glPopMatrix();
 	}*/
+	for(int i=0;i<2;i++){
+	p[i].position[0]+=p[i].vel[0];
 	glPushMatrix();
 	glColor3f(1.0, 1.0, 1.0);
-	if(p.dir==0)
+	if(p[i].dir==0)
 		glBindTexture(GL_TEXTURE_2D, g.walkBackTexture);
-	if(p.dir==1)
+	if(p[i].dir==1)
 		glBindTexture(GL_TEXTURE_2D, g.walkTexture);
 	//
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.0f);
 	glColor4ub(255,255,255,255);
-	int ix = p.walkFrame % 8;
+	int ix = p[i].walkFrame % 8;
 	int iy = 0;
-	if (p.walkFrame >= 8)
+	if (p[i].walkFrame >= 8)
 		iy = 1;
 	float tx = (float)ix / 8.0;
 	float ty = (float)iy / 2.0;
 	glBegin(GL_QUADS);
-		glTexCoord2f(tx,      ty+.5); glVertex2i(p.position[0]-p.w, p.position[1]-p.h);
-		glTexCoord2f(tx,      ty);    glVertex2i(p.position[0]-p.w, p.position[1]+p.h);
-		glTexCoord2f(tx+.125, ty);    glVertex2i(p.position[0]+p.w, p.position[1]+p.h);
-		glTexCoord2f(tx+.125, ty+.5); glVertex2i(p.position[0]+p.w, p.position[1]-p.h);
+		glTexCoord2f(tx,      ty+.5); glVertex2i(p[i].position[0]-p[i].w, p[i].position[1]-p[i].h);
+		glTexCoord2f(tx,      ty);    glVertex2i(p[i].position[0]-p[i].w, p[i].position[1]+p[i].h);
+		glTexCoord2f(tx+.125, ty);    glVertex2i(p[i].position[0]+p[i].w, p[i].position[1]+p[i].h);
+		glTexCoord2f(tx+.125, ty+.5); glVertex2i(p[i].position[0]+p[i].w, p[i].position[1]-p[i].h);
 	glEnd();
 	glPopMatrix();
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDisable(GL_ALPHA_TEST);
+	showhealth(p[i].health,p[i].position[0],p[i].position[1],p[i].h,g.name);
+}
 	//
 	unsigned int c = 0x00ffff44;
 	r.bot = g.yres - 20;
 	r.left = 10;
 	r.center = 0;
-	showhealth(p.health,p.position[0],p.position[1],p.h,g.name);
+	
 	ggprint8b(&r, 16, c, "hold right arrow to walk right");
 	ggprint8b(&r, 16, c, "hold left arrow to walk left");
 	ggprint8b(&r, 16, c, "press n to toggle name");
-	ggprint8b(&r, 16, c, "frame: %i", p.walkFrame);
+	ggprint8b(&r, 16, c, "frame: %i", p[1].walkFrame);
 	name1(r,16, c);
-	p.vel[0]=0.0;
 }
 
 
