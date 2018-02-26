@@ -32,8 +32,8 @@ void showhealth(int health,float cx,float cy,float h,int name,int index){
 	ggprint8b(&r, 16, c, "Health: %i",health);
 	//print health bar-----------------------
 	if(index==1){
-		glBegin(GL_QUADS);
 		glColor3ub(150,150,150);
+		glBegin(GL_QUADS);
 		glVertex2i(400*2-5,300*2-5);
 		glVertex2i(400*2-5,300*2-40);
 		glVertex2i(400*2-15-300,300*2-40);
@@ -63,8 +63,8 @@ void showhealth(int health,float cx,float cy,float h,int name,int index){
 		ggprint8b(&r, 16, c, "HEALTH: %i%",health);
 	}
 	if(index==0){
-		glBegin(GL_QUADS);
 		glColor3ub(150,150,150);
+		glBegin(GL_QUADS);
 		glVertex2i(5,300*2-5);
 		glVertex2i(5,300*2-40);
 		glVertex2i(15+300,300*2-40);

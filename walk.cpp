@@ -399,6 +399,7 @@ void initOpengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
 		GL_RGBA, GL_UNSIGNED_BYTE, walkBackData);
 	//-------------------------------------------------------------------------
+	glGenTextures(1, &g.walkTexture2);
 	glBindTexture(GL_TEXTURE_2D, g.walkTexture2);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
@@ -406,6 +407,7 @@ void initOpengl(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0,
 		GL_RGBA, GL_UNSIGNED_BYTE, walkData2);
 	//-------------------------------------------------------------------------
+	glGenTextures(1, &g.walkBackTexture2);
 	glBindTexture(GL_TEXTURE_2D, g.walkBackTexture2);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
@@ -624,39 +626,7 @@ void render(void)
 	//Clear the screen
 	glClearColor(0.1, 0.1, 0.1, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
-	//
-	//show ground
-	//glBegin(GL_QUADS);
-	//	glColor3f(0.2, 0.2, 0.2);
-	//	glVertex2i(0,       220);
-	//	glVertex2i(g.xres, 220);
-	//	glColor3f(0.4, 0.4, 0.4);
-	//	glVertex2i(g.xres,   0);
-	//	glVertex2i(0,         0);
-	//glEnd();
-	//
-	//fake shadow
-	//glColor3f(0.25, 0.25, 0.25);
-	//glBegin(GL_QUADS);
-	//	glVertex2i(cx-60, 150);
-	//	glVertex2i(cx+50, 150);
-	//	glVertex2i(cx+50, 130);
-	//	glVertex2i(cx-60, 130);
-	//glEnd();
-	//
-	//show boxes as background
-	/*for (int i=0; i<20; i++) {
-		glPushMatrix();
-		glTranslated(g.box[i][0],g.box[i][1],g.box[i][2]);
-		glColor3f(0.2, 0.2, 0.2);
-		glBegin(GL_QUADS);
-			glVertex2i( 0,  0);
-			glVertex2i( 0, 30);
-			glVertex2i(20, 30);
-			glVertex2i(20,  0);
-		glEnd();
-		glPopMatrix();
-	}*/
+
 	for(int i=0;i<2;i++){
 	p[i].position[0]+=p[i].vel[0];
 	glPushMatrix();
@@ -685,7 +655,8 @@ void render(void)
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDisable(GL_ALPHA_TEST);
 	showhealth(p[i].health,p[i].position[0],p[i].position[1],p[i].h,g.name,i);
-}
+	}
+
 	//
 	unsigned int c = 0x00ffff44;
 	r.bot = g.yres - 20;
