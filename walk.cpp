@@ -18,8 +18,13 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 #include "fonts.h"
-
+#include <linux/joystick.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#include <iostream>
 
 //defined types
 typedef double Flt;
@@ -36,20 +41,20 @@ typedef Flt	Matrix[4][4];
 #define VecSub(a,b,c) (c)[0]=(a)[0]-(b)[0]; \
                       (c)[1]=(a)[1]-(b)[1]; \
                       (c)[2]=(a)[2]-(b)[2]
+#define JOY_DEV1 "/dev/input/js1"
+#define JOY_DEV2 "/dev/input/js3"
 //constants
 const float timeslice = 1.0f;
 const float gravity = -0.2f;
 #define ALPHA 1
 
 
-extern void walk(int *walk,int *hold);
-extern void walkBack(int *walk_back,int *hold);
-extern void jump();
-extern void showhealth(int,float,float,float,int,int);
-extern void name1(Rect *r,int x, unsigned int c); 
-extern double timer();
-extern double timer2();
-extern double timer3();
+void walk(int *walk,int *hold);
+void walkBack(int *walk_back,int *hold);
+void jump();
+void showhealth(int,float,float,float,int,int);
+void name1(Rect r,int x, unsigned int c); 
+bool setupJoystick();
 
 class Image {
 public:
@@ -149,7 +154,12 @@ class Player {
 	int walkFrame;
 	double delay;
 	int jump;
+	int num;
+	int last[10][10];
+	int joy;
 	Player(){
+		num=0;
+		joy=0;
 		health=100;
 		name=1;
 		dir=1;
@@ -290,6 +300,201 @@ public:
 
 } x11;
 
+int joy_fd1, joy_fd2, *axis1[2]={NULL}, *axis2[2]={NULL}, num_of_axis1=0, num_of_axis2=0, num_of_buttons1=0, num_of_buttons2=0, x1, x2;
+char *button1[2]={NULL}, *button2[2]={NULL}, name_of_joystick1[80], name_of_joystick2[80];
+struct js_event js1;
+struct js_event js2;
+
+bool setupJoystick(int ind){
+	if(ind == 0){
+		if( ( joy_fd1 = open( JOY_DEV1 , O_RDONLY)) == -1 )
+		{
+			printf( "Couldn't open joystick\n" );
+			return false;
+		}
+
+		ioctl( joy_fd1, JSIOCGAXES, &num_of_axis1 );
+		ioctl( joy_fd1, JSIOCGBUTTONS, &num_of_buttons1 );
+		ioctl( joy_fd1, JSIOCGNAME(80), &name_of_joystick1 );
+
+		axis1[0] = (int *) calloc( num_of_axis1, sizeof( int ) );
+		axis1[1] = (int *) calloc( num_of_axis1, sizeof( int ) );
+		button1[0] = (char *) calloc( num_of_buttons1, sizeof( char ) );
+		button1[1] = (char *) calloc( num_of_buttons1, sizeof( char ) );
+
+		printf("Joystick detected: %s\n\t%d axis\n\t%d buttons\n\n"
+			, name_of_joystick1
+			, num_of_axis1
+			, num_of_buttons1 );
+
+		fcntl( joy_fd1, F_SETFL, O_NONBLOCK );	/* use non-blocking mode */
+		return true;
+	}
+	if(ind == 1){
+		if( ( joy_fd2 = open( JOY_DEV2 , O_RDONLY)) == -1 )
+		{
+			printf( "Couldn't open joystick\n" );
+			return false;
+		}
+
+		ioctl( joy_fd2, JSIOCGAXES, &num_of_axis2 );
+		ioctl( joy_fd2, JSIOCGBUTTONS, &num_of_buttons2 );
+		ioctl( joy_fd2, JSIOCGNAME(80), &name_of_joystick2 );
+
+		axis2[0] = (int *) calloc( num_of_axis2, sizeof( int ) );
+		axis2[1] = (int *) calloc( num_of_axis2, sizeof( int ) );
+		button2[0] = (char *) calloc( num_of_buttons2, sizeof( char ) );
+		button2[1] = (char *) calloc( num_of_buttons2, sizeof( char ) );
+
+		printf("Joystick detected: %s\n\t%d axis\n\t%d buttons\n\n"
+			, name_of_joystick2
+			, num_of_axis2
+			, num_of_buttons2 );
+
+		fcntl( joy_fd2, F_SETFL, O_NONBLOCK );	/* use non-blocking mode */
+		return true;
+	}
+	return true;
+}
+
+bool buttonDown1[2];
+bool buttonDown2[2];
+
+void checkJoystick(int ind){
+	if(ind == 0){
+			/* read the joystick state */
+		read(joy_fd1, &js1, sizeof(struct js_event));
+	
+			/* see what to do with the event */
+		switch (js1.type & ~JS_EVENT_INIT)
+		{
+			case JS_EVENT_AXIS:
+				axis1[1][ js1.number ] = js1.value;
+				break;
+			case JS_EVENT_BUTTON:
+				button1[1][ js1.number ] = js1.value;
+				break;
+		}
+		if(axis1[1][6]<0){
+			p[0].walk = 0;
+			p[0].num = 1;
+			p[0].vel[0] = -2.5;
+			walkBack(&p[0].walk_back,&p[0].hold);
+		}
+		if(axis1[1][6]>0){
+			p[0].walk_back = 0;
+			p[0].num = 1;
+			p[0].vel[0] = 2.5;
+			walk(&p[0].walk,&p[0].hold);
+		}
+		if(axis1[1][0]<-1000){
+			p[0].walk = 0;
+			p[0].joy = 1;
+			p[0].vel[0] = -2.5;
+			walkBack(&p[0].walk_back,&p[0].hold);
+		}
+		if(axis1[1][0]>1000){
+			p[0].walk_back = 0;
+			p[0].joy = 1;
+			p[0].vel[0] = 2.5;
+			walk(&p[0].walk,&p[0].hold);
+		}
+		if(axis1[1][0] < 1000 && axis1[1][0] > -1000&&p[0].joy==1&&p[0].hold==1){
+			p[0].joy=0;
+			p[0].walk=0;
+			p[0].walk_back=0;
+			p[0].vel[0] = 0.0;
+			p[0].hold=0;
+		}
+		if(axis1[1][6] == 0&&p[0].num==1&&p[0].hold==1){
+			p[0].num=0;
+			p[0].walk=0;
+			p[0].walk_back=0;
+			p[0].hold=0;
+			p[0].vel[0]=0.0;
+		}
+		if(button1[1][0]>0.0){
+			if(!buttonDown1[0]){
+				buttonDown1[0] = true; 
+				p[0].vel[1] = 10.5;
+			}
+		}
+		else{
+			buttonDown1[0] = false;
+		}
+		p[0].last[0][6]=axis1[0][6];
+		p[0].last[0][0]=axis1[0][0];
+		printf("  \r");
+		fflush(stdout);
+	}
+	if(ind == 1){
+				/* read the joystick state */
+		read(joy_fd2, &js2, sizeof(struct js_event));
+		
+			/* see what to do with the event */
+		switch (js2.type & ~JS_EVENT_INIT)
+		{
+			case JS_EVENT_AXIS:
+				axis2[1][ js2.number ] = js2.value;
+				break;
+			case JS_EVENT_BUTTON:
+				button2[1][ js2.number ] = js2.value;
+				break;
+		}
+		if(axis2[1][6]<0){
+			p[1].walk = 0;
+			p[1].num = 1;
+			p[1].vel[0] = -2.5;
+			walkBack(&p[1].walk_back,&p[1].hold);
+		}
+		if(axis2[1][6]>0){
+			p[1].walk_back=0;
+			p[1].num = 1;
+			p[1].vel[0] = 2.5;
+			walk(&p[1].walk,&p[1].hold);
+		}
+		if(axis2[1][0]<-1000){
+			p[1].walk = 0;
+			p[1].joy = 1;
+			p[1].vel[0] = -2.5;
+			walkBack(&p[1].walk_back,&p[1].hold);
+		}
+		if(axis2[1][0]>1000){
+			p[1].walk_back = 0;
+			p[1].joy = 1;
+			p[1].vel[0] = 2.5;
+			walk(&p[1].walk,&p[1].hold);
+		}
+		if(axis2[1][0] < 1000 && axis2[1][0] > -1000&&p[1].joy==1&&p[1].hold==1){
+			p[1].joy=0;
+			p[1].walk=0;
+			p[1].walk_back=0;
+			p[1].vel[0] = 0.0;
+			p[1].hold=0;
+		}
+		if(axis2[1][6] == 0&&p[1].num==1&&p[1].hold==1){
+			p[1].num=0;
+			p[1].walk=0;
+			p[1].walk_back=0;
+			p[1].hold=0;
+			p[1].vel[0]=0.0;
+		}
+		if(button2[1][0]>0.0){
+			if(!buttonDown2[0]){
+				buttonDown2[0] = true; 
+				p[1].vel[1] = 10.5;
+			}
+		}
+		else{
+			buttonDown2[0] = false;
+		}
+		p[1].last[0][6]=axis2[0][6];
+		p[1].last[0][0]=axis2[0][0];
+		printf("  \r");
+		fflush(stdout);
+	}
+}
+
 //function prototypes
 void initOpengl(void);
 void checkMouse(XEvent *e);
@@ -301,21 +506,31 @@ void render(void);
 
 int main(void)
 {
+	bool temp1;
+	bool temp2;
 	initOpengl();
 	init();
+	temp1=setupJoystick(0);
+	temp2=setupJoystick(1);
 	int done = 0;
-	while (!done) {
+	while (!done){
 		while (x11.getXPending()) {
 			XEvent e = x11.getXNextEvent();
 			x11.checkResize(&e);
 			checkMouse(&e);
 			done = checkKeys(&e);
 		}
+		if(temp1)
+			checkJoystick(0);
+		if(temp2)
+			checkJoystick(1);
 		physics();
 		render();
 		x11.swapBuffers();
 	}
 	cleanup_fonts();
+	close(joy_fd1);
+	close(joy_fd2);
 	return 0;
 }
 
@@ -354,7 +569,6 @@ void initOpengl(void)
 	//OpenGL initialization
 	glViewport(0, 0, g.xres, g.yres);
 	//Initialize matrices
-	void timer();
 	glMatrixMode(GL_PROJECTION); glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
 	//This sets 2D mode (no perspective)
@@ -606,9 +820,11 @@ void physics(void)
 				//g.box[i][0] -= g.xres + 10.0;
 		//}
 	}
-	if (p[i].jump) {
-
-	}
+	p[i].position[1] += p[i].vel[1];
+	if(p[i].vel[1] > -20)
+		p[i].vel[1] -= .35;
+	if(p[i].position[1]<300)
+		p[i].position[1] = 300;
 }
 }
 
@@ -671,10 +887,7 @@ void render(void)
 	ggprint8b(&r, 16, c, "hold left arrow to walk left");
 	ggprint8b(&r, 16, c, "press n to toggle name");
 	ggprint8b(&r, 16, c, "frame: %i", p[1].walkFrame);
-	name1(&r, 16, c);
-	ggprint8b(&r, 16, c, "time: %lf", timer());
-	ggprint8b(&r, 16, c, "time2: %lf", timer2());
-	ggprint8b(&r, 16, c, "time3: %lf", timer3());
+	name1(r,16, c);
 }
 
 

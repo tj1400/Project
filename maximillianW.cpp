@@ -96,3 +96,10 @@ void showhealth(int health,float cx,float cy,float h,int name,int index){
 
 }
 
+
+
+
+
+	
+	
+
