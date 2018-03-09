@@ -96,16 +96,23 @@ void showhealth(int health,float cx,float cy,float h,int name,int index){
 	}
 
 }
+double oobillion = 1.0/1e9;
+double timeDiff(struct timespec *start, struct timespec *end) {
+		return (double)(end->tv_sec - start->tv_sec ) +
+				(double)(end->tv_nsec - start->tv_nsec) * oobillion;
+	}
 
 double mTimer1()
 {
 	static double timeT = 0.0;
 	struct timespec start, end;
+	int x=0;
 	clock_gettime(CLOCK_REALTIME, &start);
+		x = x/50;
+		x = x*x;
 	clock_gettime(CLOCK_REALTIME, &end);
-	timeT += (double)(end.tv_sec - start.tv_sec)+
-		(double)(end.tv_nsec - start.tv_nsec);
-		return timeT/10000;
+	timeT += timeDiff(&start, &end);
+	return timeT;
 }
 
 double mTimer2()
@@ -119,9 +126,8 @@ double mTimer2()
 		x = x*x;
 	}
 	clock_gettime(CLOCK_REALTIME, &end);
-	timeT += (double)(end.tv_sec - start.tv_sec)+
-		(double)(end.tv_nsec - start.tv_nsec);
-		return timeT/10000;
+	timeT += timeDiff(&start, &end);
+		return timeT;
 }
 
 double mTimer3()
@@ -135,9 +141,8 @@ double mTimer3()
 		x = x*x;
 	}
 	clock_gettime(CLOCK_REALTIME, &end);
-	timeT += (double)(end.tv_sec - start.tv_sec)+
-		(double)(end.tv_nsec - start.tv_nsec);
-		return timeT/10000;
+	timeT += timeDiff(&start, &end);
+		return timeT;
 }
 	
 	
