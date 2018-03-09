@@ -56,6 +56,9 @@ extern void name1(Rect *r,int x, unsigned int c);
 extern double timer();
 extern double timer2();
 extern double timer3();
+extern double mTimer1();
+extern double mTimer2();
+extern double mTimer3();
 bool setupJoystick();
 
 class Image {
@@ -893,8 +896,10 @@ void render(void)
 	name1(&r,16, c);
 	ggprint8b(&r, 16, c, "time: %lf", timer());
 	ggprint8b(&r, 16, c, "time2: %lf", timer2());
-	ggprint8b(&r, 16, c, "time3: %lf", timer3());
-	
+	ggprint8b(&r, 32, c, "time3: %lf", timer3());
+	ggprint8b(&r, 16, c, "maxTime1(no loop):             %lf", mTimer1());
+	ggprint8b(&r, 16, c, "maxTime2(for loop of 10):    %lf", mTimer2());
+	ggprint8b(&r, 16, c, "maxTime3(for loop of 1000): %lf", mTimer3());
 }
 
 

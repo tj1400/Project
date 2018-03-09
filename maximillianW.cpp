@@ -9,6 +9,7 @@
 //also will toggle name on and off based off of key stroke n
 #include "fonts.h"
 #include <GL/glx.h>
+#include <time.h>
 void showhealth(int health,float cx,float cy,float h,int name,int index){
 	Rect r;
 	r.bot = cy+h-(h/400)*16;
@@ -95,6 +96,51 @@ void showhealth(int health,float cx,float cy,float h,int name,int index){
 	}
 
 }
+
+double mTimer1()
+{
+	static double timeT = 0.0;
+	struct timespec start, end;
+	clock_gettime(CLOCK_REALTIME, &start);
+	clock_gettime(CLOCK_REALTIME, &end);
+	timeT += (double)(end.tv_sec - start.tv_sec)+
+		(double)(end.tv_nsec - start.tv_nsec);
+		return timeT/10000;
+}
+
+double mTimer2()
+{
+	static double timeT = 0.0;
+	struct timespec start, end;
+	int x=0;
+	clock_gettime(CLOCK_REALTIME, &start);
+	for(int i=0;i<10;i++){
+		x = x*i/50;
+		x = x*x;
+	}
+	clock_gettime(CLOCK_REALTIME, &end);
+	timeT += (double)(end.tv_sec - start.tv_sec)+
+		(double)(end.tv_nsec - start.tv_nsec);
+		return timeT/10000;
+}
+
+double mTimer3()
+{
+	static double timeT = 0.0;
+	struct timespec start, end;
+	int x=0;
+	clock_gettime(CLOCK_REALTIME, &start);
+	for(int i=0;i<1000;i++){
+		x = x*i/50;
+		x = x*x;
+	}
+	clock_gettime(CLOCK_REALTIME, &end);
+	timeT += (double)(end.tv_sec - start.tv_sec)+
+		(double)(end.tv_nsec - start.tv_nsec);
+		return timeT/10000;
+}
+	
+	
 
 
 
