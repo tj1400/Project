@@ -59,7 +59,11 @@ extern double timer3();
 extern double mTimer1();
 extern double mTimer2();
 extern double mTimer3();
+extern double gtimer();
+extern double gtimer2();
+extern double gtimer3();
 bool setupJoystick();
+extern void background(int, int);
 
 class Image {
 public:
@@ -853,6 +857,7 @@ void render(void)
 	glClearColor(0.1, 0.1, 0.1, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	background(g.xres, g.yres);
 	for(int i=0;i<2;i++){
 	p[i].position[0]+=p[i].vel[0];
 	glPushMatrix();
@@ -861,6 +866,8 @@ void render(void)
 		glBindTexture(GL_TEXTURE_2D, g.walkBackTexture);
 	if(p[i].dir==1)
 		glBindTexture(GL_TEXTURE_2D, g.walkTexture);
+	//
+	//
 	//
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.0f);
@@ -899,7 +906,10 @@ void render(void)
 	ggprint8b(&r, 32, c, "time3: %lf", timer3());
 	ggprint8b(&r, 16, c, "maxTime1(no loop):             %lf", mTimer1());
 	ggprint8b(&r, 16, c, "maxTime2(for loop of 10):    %lf", mTimer2());
-	ggprint8b(&r, 16, c, "maxTime3(for loop of 1000): %lf", mTimer3());
+	ggprint8b(&r, 32, c, "maxTime3(for loop of 1000): %lf", mTimer3());
+	ggprint8b(&r, 16, c, "gtime: %lf", gtimer());
+	ggprint8b(&r, 16, c, "gtime2: %lf", gtimer2());
+	ggprint8b(&r, 32, c, "gtime3: %lf", gtimer3());
 }
 
 
