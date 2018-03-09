@@ -48,12 +48,14 @@ const float timeslice = 1.0f;
 const float gravity = -0.2f;
 #define ALPHA 1
 
-
-void walk(int *walk,int *hold);
-void walkBack(int *walk_back,int *hold);
-void jump();
-void showhealth(int,float,float,float,int,int);
-void name1(Rect r,int x, unsigned int c); 
+extern void walk(int *walk,int *hold);
+extern void walkBack(int *walk_back,int *hold);
+extern void jump();
+extern void showhealth(int,float,float,float,int,int);
+extern void name1(Rect *r,int x, unsigned int c); 
+extern double timer();
+extern double timer2();
+extern double timer3();
 bool setupJoystick();
 
 class Image {
@@ -569,6 +571,7 @@ void initOpengl(void)
 	//OpenGL initialization
 	glViewport(0, 0, g.xres, g.yres);
 	//Initialize matrices
+	void timer();
 	glMatrixMode(GL_PROJECTION); glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
 	//This sets 2D mode (no perspective)
@@ -887,7 +890,11 @@ void render(void)
 	ggprint8b(&r, 16, c, "hold left arrow to walk left");
 	ggprint8b(&r, 16, c, "press n to toggle name");
 	ggprint8b(&r, 16, c, "frame: %i", p[1].walkFrame);
-	name1(r,16, c);
+	name1(&r,16, c);
+	ggprint8b(&r, 16, c, "time: %lf", timer());
+	ggprint8b(&r, 16, c, "time2: %lf", timer2());
+	ggprint8b(&r, 16, c, "time3: %lf", timer3());
+	
 }
 
 
