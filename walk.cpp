@@ -62,6 +62,7 @@ extern double mTimer3();
 extern double gtimer();
 extern double gtimer2();
 extern double gtimer3();
+extern double timelab1();
 bool setupJoystick();
 extern void background(int, int);
 
@@ -910,6 +911,7 @@ void render(void)
 	ggprint8b(&r, 16, c, "gtime: %lf", gtimer());
 	ggprint8b(&r, 16, c, "gtime2: %lf", gtimer2());
 	ggprint8b(&r, 32, c, "gtime3: %lf", gtimer3());
+	ggprint8b(&r, 16, c, "andrew time: %lf", timelab1());
 }
 
 

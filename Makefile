@@ -1,4 +1,4 @@
-CFLAGS = -I ./include terryL.cpp maximillianW.cpp andrewB.cpp
+CFLAGS = -I ./include terryL.cpp maximillianW.cpp andrewB.cpp GuangL.cpp
 LFLAGS = -lrt -lX11 -lGLU -lGL -pthread -lm #-lXrandr
 
 all: walk
