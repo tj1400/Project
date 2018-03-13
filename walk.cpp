@@ -25,6 +25,7 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <iostream>
+#include <GL/glut.h>
 
 //defined types
 typedef double Flt;
@@ -514,7 +515,7 @@ void physics(void);
 void render(void);
 
 
-int main(void)
+int main(int argc, char **argv)
 {
 	bool temp1;
 	bool temp2;
@@ -523,7 +524,19 @@ int main(void)
 	temp1=setupJoystick(0);
 	temp2=setupJoystick(1);
 	int done = 0;
-	while (!done){
+/*	
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
+
+    glutInitWindowSize(800, 600);
+    glutCreateWindow("Aspect Ratio");
+
+    glutDisplayFunc(display);
+    glutReshapFunc(reshape);
+    texture = LoadTexture();
+    glutMainLoop();
+*/
+    while (!done){
 		while (x11.getXPending()) {
 			XEvent e = x11.getXNextEvent();
 			x11.checkResize(&e);
