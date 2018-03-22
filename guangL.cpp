@@ -8,7 +8,9 @@
 #include <GL/glu.h>
 #include <time.h>
 #include <GL/gl.h>
-
+#include <fstream>
+#include <stdlib.h>
+//#include <GL/glut.h>
 int w1 = 0;
 int h1 = 0;
 
@@ -32,14 +34,14 @@ void orthogonalEnd() {
     glMatrixMode(GL_MODELVIEW);
 }
 
-Gluint texture = 0;
+GLuint texture = 0;
 
-Gluint LoadTexture(const char *filename, int width, int height) {
-    Gluint texture;
-    unsigned char data[] = {255,   0,   0,   0, 
+GLuint LoadTexture(const char *filename, int width, int height) {
+    GLuint texture;
+    unsigned char  data [] = {255,   0,   0,   0, 
                             255,   0,   0,   0, 
                             255, 255, 255, 255};
-    File * file;
+    FILE * file;
 
     file = fopen(filename, "images/background.gif");
     if (file == NULL)
@@ -63,7 +65,7 @@ Gluint LoadTexture(const char *filename, int width, int height) {
     return texture;
 }
 
-void FreeTexture (Gluint texture) {
+void FreeTexture (GLuint texture) {
     glDeleteTextures( 1, &texture);
 }
 
@@ -79,7 +81,7 @@ void background() {
     glTranslatef(-iw/2, -ih/2, 0);
     glBegin(GL_QUADS);
     glTexCoord2i(0, 0); glVertex2i( 0,  0);
-    glTexCoord2i(1, 0); glVertex2i(1w,  0);
+    glTexCoord2i(1, 0); glVertex2i(iw,  0);
     glTexCoord2i(1, 1); glVertex2i(iw, ih);
     glTexCoord2i(0, 1); glVertex2i( 0, ih);
 
