@@ -461,7 +461,7 @@ bool setupJoystick(int ind){
 			int k=0;
 			int m=0;
 			printf("name: 0: Keyboard\n");
-			for(int i=1;i<10-count2;i++){
+			for(int i=0;i<10-count2;i++){
 				char name1[80]={"Wireless Controller"};
 				char name2[80]={"Wireless Controller Motion Sensors"};
 				int pass1 = 1;
@@ -721,7 +721,7 @@ void jsControl(int ind){
 				}
 			}
 			else{
-				buttonDown1[1] = false;
+				buttonDown2[2] = false;
 			}
 			p[1].last[0][6]=axis2[6];
 			p[1].last[0][0]=axis2[0];

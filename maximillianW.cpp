@@ -117,7 +117,7 @@ void shoot(Vec pos,int ind, int dir, int w){
 		b[0][bullets1].pos[1] = pos[1];
 		b[0][bullets1].vel = 4 * dir;
 		glBegin(GL_QUADS);
-		glColor3ub(255,0,0);
+		glColor3ub(100,100,255);
 		glVertex2i(pos[0]+1,pos[1]+1);
 		glVertex2i(pos[0]+1,pos[1]-1);
 		glVertex2i(pos[0]-1,pos[1]-1);
@@ -130,7 +130,7 @@ void shoot(Vec pos,int ind, int dir, int w){
 		b[1][bullets2].pos[1] = pos[1];
 		b[1][bullets2].vel = 4 * dir;
 		glBegin(GL_QUADS);
-		glColor3ub(255,0,0);
+		glColor3ub(100,100,255);
 		glVertex2i(pos[0]+1,pos[1]+1);
 		glVertex2i(pos[0]+1,pos[1]-1);
 		glVertex2i(pos[0]-1,pos[1]-1);
@@ -150,7 +150,7 @@ int moveBullets(Vec p1,Vec p2, float w, float h,int xres,int health1,int health2
 			distx=-distx;
 		if(disty<0)
 			disty=-disty;
-		if(distx<w/2&&disty<h&&health1>0){
+		if(distx<w/2&&disty<h&&health1>0&&health2>0){
 			bullets1--;
 			for(int j=i;j<bullets1;j++){
 				b[0][j] = b[0][j+1];
@@ -164,11 +164,11 @@ int moveBullets(Vec p1,Vec p2, float w, float h,int xres,int health1,int health2
 			}
 		}
 		glBegin(GL_QUADS);
-		glColor3ub(255,0,0);
-		glVertex2i(b[0][i].pos[0]+1,b[0][i].pos[1]+1);
-		glVertex2i(b[0][i].pos[0]+1,b[0][i].pos[1]-1);
-		glVertex2i(b[0][i].pos[0]-1,b[0][i].pos[1]-1);
-		glVertex2i(b[0][i].pos[0]-1,b[0][i].pos[1]+1);
+		glColor3ub(100,100,255);
+		glVertex2i(b[0][i].pos[0]+2,b[0][i].pos[1]+2);
+		glVertex2i(b[0][i].pos[0]+2,b[0][i].pos[1]-2);
+		glVertex2i(b[0][i].pos[0]-2,b[0][i].pos[1]-2);
+		glVertex2i(b[0][i].pos[0]-2,b[0][i].pos[1]+2);
 		glEnd();
 	}
 	for(int i=0;i<bullets2;i++){
@@ -179,7 +179,7 @@ int moveBullets(Vec p1,Vec p2, float w, float h,int xres,int health1,int health2
 			distx=-distx;
 		if(disty<0)
 			disty=-disty;
-		if(distx<w/2&&disty<h&&health2>0){
+		if(distx<w/2&&disty<h&&health2>0&&health1>0){
 			bullets2--;
 			for(int j=i;j<bullets2;j++){
 				b[1][j] = b[1][j+1];
@@ -193,11 +193,11 @@ int moveBullets(Vec p1,Vec p2, float w, float h,int xres,int health1,int health2
 			}
 		}
 		glBegin(GL_QUADS);
-		glColor3ub(255,0,0);
-		glVertex2i(b[1][i].pos[0]+1,b[1][i].pos[1]+1);
-		glVertex2i(b[1][i].pos[0]+1,b[1][i].pos[1]-1);
-		glVertex2i(b[1][i].pos[0]-1,b[1][i].pos[1]-1);
-		glVertex2i(b[1][i].pos[0]-1,b[1][i].pos[1]+1);
+		glColor3ub(100,100,255);
+		glVertex2i(b[1][i].pos[0]+2,b[1][i].pos[1]+2);
+		glVertex2i(b[1][i].pos[0]+2,b[1][i].pos[1]-2);
+		glVertex2i(b[1][i].pos[0]-2,b[1][i].pos[1]-2);
+		glVertex2i(b[1][i].pos[0]-2,b[1][i].pos[1]+2);
 		glEnd();
 	}
 	return hit;
