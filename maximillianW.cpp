@@ -2,6 +2,8 @@
 //3350
 //date:2/23/18
 //
+//Maximillian Wolfe
+
 //project file to display health in a color based off the amount
 //this will also display a health bar at the upper right that will 
 //correspond with the health above the character
@@ -45,70 +47,69 @@ void showhealth(int health,float cx,float cy,float h,int name,int index){
 		}
 		ggprint8b(&r, 16, c, "Health: %i",health);
 	//print health bar-----------------------
-	if(index==1){
-		glColor3ub(150,150,150);
-		glBegin(GL_QUADS);
-		glVertex2i(400*2-5,300*2-5);
-		glVertex2i(400*2-5,300*2-40);
-		glVertex2i(400*2-15-300,300*2-40);
-		glVertex2i(400*2-15-300,300*2-5);
-		glEnd();
-		
-		glBegin(GL_QUADS);
-		if(health>=75)
-			glColor3ub(0,255,0);
-		if(health>=50&&health<75)
-			glColor3ub(255,255,0);
-		if(health>=25&&health<50)
-			glColor3ub(255,165,0);
-		if(health<25)
-			glColor3ub(255,0,0);
-		
-		glVertex2i(400*2-10,300*2-10);
-		glVertex2i(400*2-10,300*2-35);
-		glVertex2i(400*2-10-health*3,300*2-35);
-		glVertex2i(400*2-10-health*3,300*2-10);
-		glEnd();
-		
-		c=0x00000000;
-		r.bot=300*2-30;
-		r.left=400*2-10-150;
-		r.center=400*2-10-150;
-		ggprint8b(&r, 16, c, "HEALTH: %i%",health);
+		if(index==1){
+			glColor3ub(150,150,150);
+			glBegin(GL_QUADS);
+			glVertex2i(400*2-5,300*2-5);
+			glVertex2i(400*2-5,300*2-40);
+			glVertex2i(400*2-15-300,300*2-40);
+			glVertex2i(400*2-15-300,300*2-5);
+			glEnd();
+			
+			glBegin(GL_QUADS);
+			if(health>=75)
+				glColor3ub(0,255,0);
+			if(health>=50&&health<75)
+				glColor3ub(255,255,0);
+			if(health>=25&&health<50)
+				glColor3ub(255,165,0);
+			if(health<25)
+				glColor3ub(255,0,0);
+			
+			glVertex2i(400*2-10,300*2-10);
+			glVertex2i(400*2-10,300*2-35);
+			glVertex2i(400*2-10-health*3,300*2-35);
+			glVertex2i(400*2-10-health*3,300*2-10);
+			glEnd();
+			
+			c=0x00000000;
+			r.bot=300*2-30;
+			r.left=400*2-10-150;
+			r.center=400*2-10-150;
+			ggprint8b(&r, 16, c, "HEALTH: %i%",health);
+		}
+		if(index==0){
+			glColor3ub(150,150,150);
+			glBegin(GL_QUADS);
+			glVertex2i(5,300*2-5);
+			glVertex2i(5,300*2-40);
+			glVertex2i(15+300,300*2-40);
+			glVertex2i(15+300,300*2-5);
+			glEnd();
+			
+			glBegin(GL_QUADS);
+			if(health>=75)
+				glColor3ub(0,255,0);
+			if(health>=50&&health<75)
+				glColor3ub(255,255,0);
+			if(health>=25&&health<50)
+				glColor3ub(255,165,0);
+			if(health<25)
+				glColor3ub(255,0,0);
+			
+			glVertex2i(10,300*2-10);
+			glVertex2i(10,300*2-35);
+			glVertex2i(10+health*3,300*2-35);
+			glVertex2i(10+health*3,300*2-10);
+			glEnd();
+			
+			c=0x00000000;
+			r.bot=300*2-30;
+			r.left=10+150;
+			r.center=10+150;
+			ggprint8b(&r, 16, c, "HEALTH: %i%",health);
+		}
 	}
-	if(index==0){
-		glColor3ub(150,150,150);
-		glBegin(GL_QUADS);
-		glVertex2i(5,300*2-5);
-		glVertex2i(5,300*2-40);
-		glVertex2i(15+300,300*2-40);
-		glVertex2i(15+300,300*2-5);
-		glEnd();
-		
-		glBegin(GL_QUADS);
-		if(health>=75)
-			glColor3ub(0,255,0);
-		if(health>=50&&health<75)
-			glColor3ub(255,255,0);
-		if(health>=25&&health<50)
-			glColor3ub(255,165,0);
-		if(health<25)
-			glColor3ub(255,0,0);
-		
-		glVertex2i(10,300*2-10);
-		glVertex2i(10,300*2-35);
-		glVertex2i(10+health*3,300*2-35);
-		glVertex2i(10+health*3,300*2-10);
-		glEnd();
-		
-		c=0x00000000;
-		r.bot=300*2-30;
-		r.left=10+150;
-		r.center=10+150;
-		ggprint8b(&r, 16, c, "HEALTH: %i%",health);
-	}
-}
-
 }
 
 void shoot(Vec pos,int ind, int dir, int w){
