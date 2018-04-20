@@ -38,16 +38,16 @@ GLuint texture = 0;
 
 GLuint LoadTexture(const char *filename, int width, int height) {
     GLuint texture;
-    unsigned char  data [] = {255,   0,   0,   0, 
+/*    unsigned char  data [] = {255,   0,   0,   0, 
                             255,   0,   0,   0, 
-                            255, 255, 255, 255};
+                            255, 255, 255, 255};   */
     FILE * file;
 
     file = fopen(filename, "images/background.gif");
     if (file == NULL)
         return 0;
-    data = (unsigned char *)malloc(width * height * 3);
-    fread(data, width * height * 3, 1, file);
+//    data = (unsigned char *)malloc(width * height * 3);
+//    fread(data, width * height * 3, 1, file);
     fclose(file);
 
     glGenTextures( 1, &texture);
@@ -60,8 +60,8 @@ GLuint LoadTexture(const char *filename, int width, int height) {
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    free(data);
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+//    free(data);
     return texture;
 }
 
@@ -102,7 +102,7 @@ void display() {
               0.0, 0.0, 0.0, 
               0.0, 1.0, 0.0);
 
-    glutSwapBuffers();
+//    glutSwapBuffers();
 }
 /*
 GLuint LoadTexture() {
