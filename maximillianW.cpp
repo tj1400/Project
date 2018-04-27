@@ -24,7 +24,7 @@ class Bullet {
 int bullets1 = 0;
 int bullets2 = 0;
 
-void showhealth(int health,float cx,float cy,float h,int name,int index){
+void showhealth(int health,float cx,float cy,float h,int name,int index,int power){
 	if(health>0){
 		Rect r;
 		r.bot = cy+h-(h/400)*16;
@@ -51,8 +51,8 @@ void showhealth(int health,float cx,float cy,float h,int name,int index){
 			glColor3ub(150,150,150);
 			glBegin(GL_QUADS);
 			glVertex2i(400*2-5,300*2-5);
-			glVertex2i(400*2-5,300*2-40);
-			glVertex2i(400*2-15-300,300*2-40);
+			glVertex2i(400*2-5,300*2-50);
+			glVertex2i(400*2-15-300,300*2-50);
 			glVertex2i(400*2-15-300,300*2-5);
 			glEnd();
 			
@@ -72,6 +72,15 @@ void showhealth(int health,float cx,float cy,float h,int name,int index){
 			glVertex2i(400*2-10-health*3,300*2-10);
 			glEnd();
 			
+			glColor3ub(100,100,255);
+			glBegin(GL_QUADS);
+			glVertex2i(400*2-10,300*2-40);
+			glVertex2i(400*2-10,300*2-45);
+			glVertex2i(400*2-10-power*3,300*2-45);
+			glVertex2i(400*2-10-power*3,300*2-40);
+			glEnd();
+			
+			
 			c=0x00000000;
 			r.bot=300*2-30;
 			r.left=400*2-10-150;
@@ -82,8 +91,8 @@ void showhealth(int health,float cx,float cy,float h,int name,int index){
 			glColor3ub(150,150,150);
 			glBegin(GL_QUADS);
 			glVertex2i(5,300*2-5);
-			glVertex2i(5,300*2-40);
-			glVertex2i(15+300,300*2-40);
+			glVertex2i(5,300*2-50);
+			glVertex2i(15+300,300*2-50);
 			glVertex2i(15+300,300*2-5);
 			glEnd();
 			
@@ -101,6 +110,14 @@ void showhealth(int health,float cx,float cy,float h,int name,int index){
 			glVertex2i(10,300*2-35);
 			glVertex2i(10+health*3,300*2-35);
 			glVertex2i(10+health*3,300*2-10);
+			glEnd();
+			
+			glColor3ub(100,100,255);
+			glBegin(GL_QUADS);
+			glVertex2i(10,300*2-40);
+			glVertex2i(10,300*2-45);
+			glVertex2i(10+power*3,300*2-45);
+			glVertex2i(10+power*3,300*2-40);
 			glEnd();
 			
 			c=0x00000000;
