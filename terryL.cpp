@@ -20,6 +20,21 @@ void walk(int *walk,int *hold)
     *hold=1;
 }
 
+//void phy2(int &walkFrame,Timers timers)
+//{
+////man is walking...
+                ////when time is up, advance the frame.
+                //timers.recordTime(&timers.timeCurrent);
+                //double timeSpan = timers.timeDiff(&timers.walkTime, &timers.timeCurrent);
+                //if (timeSpan > .01) {
+                        ////advance
+                        //++walkFrame;
+                        //if (walkFrame >= 16)
+                                //g.walkFrame -= 16;
+                        //timers.recordTime(&timers.walkTime);
+                //}
+//}
+
 void walkBack(int *walk_back,int *hold)
 {
     *walk_back=1;
@@ -43,6 +58,7 @@ double timer()
 	    int z = 56 * 34 / 10;
 	    int y = 45 * 88888 / 2;
 	    x = 2 + 24 - 23 * 4;
+	    x=z+y;
 	}
 	x = x - 40;
     }
@@ -66,6 +82,7 @@ double timer2()
 	    int z = 56 * 34;
 	    int y = 45 * 88888;
 	    x = 2 + 24 - 23 * 4;
+	    x=z+y;
 	}
 	x = x - 40;
     }
