@@ -47,7 +47,7 @@ typedef Flt	Matrix[4][4];
 const float timeslice = 1.0f;
 const float gravity = -0.2f;
 #define ALPHA 1
-
+extern void GameOver();
 extern void walk(int *walk,int *hold);
 extern void walkBack(int *walk_back,int *hold);
 extern void jump();
@@ -1252,7 +1252,9 @@ void render(void)
 	glDisable(GL_ALPHA_TEST);
 
 	for(int i=0;i<2;i++){
-		if(p[i].health>0){
+		if(p[i].health<0||p[i].health==0){
+		    GameOver();
+		}else{
 			p[i].position[0]+=p[i].vel[0];
 			if(i==0){
 				glPushMatrix();

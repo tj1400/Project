@@ -33,9 +33,40 @@ double timelab1()
     t += time_diff(&ftimeStart, &ftimeEnd);
     return t;
 }
+void GameOver()
+{
+       /* glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
+        glLoadIdentity();
+       // glOrtho(0.0, 100, 100, 0.0, -1.0, 10.0);
+       // glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glColor3f(0.2f,0.2f,0.2f);
+        printf("Game Over You Win");
+       // glMatrixMode(GL_PROJECTION);
+        glPopMatrix();
+       // glMatrixMode(GL_MODELVIEW);
+*/
+    Rect r;
+    r.bot = 1300;
+    r.left = 1150;
+    r.center = 0;
+    ggprint16(&r, 16, 0x00FFFFFF, "Game Over You Win");
+	   // glPopMatrix();
 
-
-
+}
+/*
+void gameover()
+{
+      glFontBegin(&font);
+      glScalef(8.0, 8.0, 8.0);
+      glTranslatef(30, 30, 0);
+      glFontTextOut("Gameover You Win", 5, 5, 0);
+      glFontEnd();
+      glFlush();
+}
+*/
 /*
    bool OnGround = true;
 
