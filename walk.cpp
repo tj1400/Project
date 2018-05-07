@@ -47,14 +47,14 @@ typedef Flt	Matrix[4][4];
 const float timeslice = 1.0f;
 const float gravity = -0.2f;
 #define ALPHA 1
-extern void GameOver();
+
 extern void walk(int *walk,int *hold);
 extern void walkBack(int *walk_back,int *hold);
 extern void jump();
 extern void showhealth(int,float,float,float,int,int,int,Flt,Flt);
 extern void name1(Rect *r,int x, unsigned int c); 
 extern int punch(Vec,float,float,Vec,int);
-extern void shoot(Vec,int,int,int,Flt,Flt);
+extern void shoot(Vec,int,int,int);
 extern int moveBullets(Vec,Vec,float,float,int,int,int,GLuint,GLuint,Flt,Flt);
 extern double timer();
 extern double timer2();
@@ -657,7 +657,7 @@ void jsControl(int ind){
 		}
 		if(js1.type == JS_EVENT_BUTTON){
 			if(button1[0]>0.0){
-				if(!buttonDown1[0]&&p[0].jump<2){
+				if(!buttonDown1[0]&&p[0].jump<2&&p[0].hitCount>14&&p[0].fallCount>99&&p[0].powerCount>49){
 					buttonDown1[0] = true; 
 					p[0].vel[1] = 8.0;
 					p[0].jump++;
@@ -672,23 +672,26 @@ void jsControl(int ind){
 					buttonDown1[3] = true;
 					int t;
 					p[0].punch=1;
+					p[0].jumpCount=1000;;
 					p[0].punchCount=0;
 					t = p[1].health - punch(p[0].position,p[0].h,p[0].w,p[1].position,p[1].health);
-					p[1].power+=t;
-					if(t!=0)
+					p[1].power+=t*2;
+					if(t!=0){
 						p[1].hitCount=0;
-					p[0].power+=t*2;
+						p[1].jump=0;
+					}
+					p[0].power+=t*4;
 					p[1].health-=t;
 				}
 			}
 			else{
 				buttonDown1[3] = false;
 			}
-			if(button1[2]>0.0&&p[0].punchCount==0&&p[0].power==100&&p[0].hitCount>14&&p[0].fallCount>99){
+			if(button1[2]>0.0&&p[0].punchCount==0&&p[0].power==100&&p[0].hitCount>14&&p[0].fallCount>99&&p[0].powerCount>49){
 				if(!buttonDown1[2]){
 					buttonDown1[2] = true;
 					p[0].powerCount=0;
-					
+					p[0].jumpCount=1000;
 					p[0].power=0;
 					//p[1].hitCount=0;
 				}
@@ -749,7 +752,7 @@ void jsControl(int ind){
 		}
 		if(js2.type == JS_EVENT_BUTTON){
 			if(button2[0]>0.0){
-				if(!buttonDown2[0]&&p[1].jump<2){
+				if(!buttonDown2[0]&&p[1].jump<2&&p[1].hitCount>14&&p[1].fallCount>99&&p[0].powerCount>49){
 					buttonDown2[0] = true; 
 					p[1].vel[1] = 8.0;
 					p[1].jump++;
@@ -764,23 +767,26 @@ void jsControl(int ind){
 					buttonDown2[3] = true;
 					int t;
 					p[1].punch=1;
+					p[1].jumpCount=1000;
 					p[1].punchCount=0;
 					t = p[0].health - punch(p[1].position,p[1].h,p[1].w,p[0].position,p[0].health);
-					p[0].power+=t;
-					if(t!=0)
+					p[0].power+=t*2;
+					if(t!=0){
 						p[0].hitCount=0;
-					p[1].power+=t*2;
+						p[0].jumpCount=1000;
+					}
+					p[1].power+=t*4;
 					p[0].health-=t;
 				}
 			}
 			else{
 				buttonDown2[3] = false;
 			}
-			if(button2[2]>0.0&&p[1].punchCount==0&&p[1].power==100&&p[1].hitCount>14&&p[0].fallCount>99){
+			if(button2[2]>0.0&&p[1].punchCount==0&&p[1].power==100&&p[1].hitCount>14&&p[0].fallCount>99&&p[1].powerCount>49){
 				if(!buttonDown2[2]){
 					buttonDown2[2] = true;
 					p[1].powerCount=0;
-					shoot(p[1].position,1,p[1].dir,p[1].w,g.xmod,g.ymod);
+					p[1].jumpCount=1000;
 					p[1].power=0;
 					//p[0].hitCount=0;
 				}
@@ -1016,12 +1022,14 @@ int checkKeys(XEvent *e)
 	switch (key) {
 		case XK_q:
 			p[0].powerCount=0;
-			shoot(p[0].position,1,p[0].dir,p[0].w,g.xmod,g.ymod);
+			p[0].jumpCount=1000;
 			p[0].power=0;
 			break;
 		case XK_w:
-			p[1].jump++;
-			p[1].vel[1]=8.0;
+			if(p[1].jump<2){
+				p[1].jump++;
+				p[1].vel[1]=8.0;
+			}
 			break;
 		case XK_Left:
 			walkBack(&p[0].walk_back,&p[0].hold);
@@ -1040,8 +1048,10 @@ int checkKeys(XEvent *e)
 			p[1].vel[0]=1.5;
 			break;
 		case XK_Up:
-			p[0].jump++;
-			p[0].vel[1]=8.0; 
+			if(p[0].jump<2){
+				p[0].jump++;
+				p[0].vel[1]=8.0;
+			} 
 			break;
 		case XK_Down:
 			break;
@@ -1115,11 +1125,6 @@ void physics(void)
 				p[i].walkFrame -= maxwalk;
 			timers.recordTime(&timers.walkTime[i]);
 		}
-		//for (int i=0; i<20; i++) {
-			//g.box[i][0] -= 2.0 * (0.05 / p.delay);
-			//if (g.box[i][0] < -10.0)
-				//g.box[i][0] += g.xres + 10.0;
-		//}
 	}
 	if (p[i].walk_back&&p[i].vel[0]<0.0&&p[i].hitCount>14&&p[i].fallCount>99) {
 		//man is walking backwards...
@@ -1133,11 +1138,6 @@ void physics(void)
 				p[i].walkFrame += maxwalk;
 			timers.recordTime(&timers.walkTime[i]);
 		}
-		//for (int i=0; i<20; i++) {
-			//g.box[i][0] += 2.0 * (0.05 / p.delay);
-			//if (g.box[i][0] < -10.0)
-				//g.box[i][0] -= g.xres + 10.0;
-		//}
 	}
 	if(p[i].hitCount<15){
 		p[i].position[0]+=-(p[i].dir*2.0);
@@ -1145,7 +1145,7 @@ void physics(void)
 	if(p[i].fallCount<30){
 		p[i].position[0]+=-(p[i].dir*4.0);
 	}
-	if(p[i].hitCount>15&&p[i].hitCount>30)
+//	if(p[i].hitCount>15&&p[i].hitCount>30)
 		p[i].position[1] += p[i].vel[1];
 	if(p[i].vel[1] > -20)
 		p[i].vel[1] -= .35;
@@ -1252,10 +1252,10 @@ void render(void)
 	glDisable(GL_ALPHA_TEST);
 
 	for(int i=0;i<2;i++){
-		if(p[i].health<0||p[i].health==0){
-		    GameOver();
-		}else{
-			p[i].position[0]+=p[i].vel[0];
+		if(p[i].health>0){
+			if(p[i].hitCount>14&&p[i].fallCount>99&&p[i].powerCount>49){
+				p[i].position[0]+=p[i].vel[0];
+			}
 			if(i==0){
 				glPushMatrix();
 				glScalef(g.xmod,g.ymod,1.0);
@@ -1283,7 +1283,7 @@ void render(void)
 							glTexCoord2f(tx+(1.0/27.0), ty+(1.0/50.0));    glVertex2i(p[i].position[0]+p[i].w, p[i].position[1]+p[i].h);
 							glTexCoord2f(tx+(1.0/27.0), ty+(1.0/11.0)); glVertex2i(p[i].position[0]+p[i].w, p[i].position[1]-p[i].h);
 					}
-					if(p[0].powerCount<50){
+					if(p[0].powerCount<50&&p[0].hitCount>14&&p[0].fallCount>99){
 						if(p[0].powerCount<7){
 							int ix = 25;
 							int iy = 4;
@@ -1343,9 +1343,9 @@ void render(void)
 							
 						}
 						if(p[0].powerCount==23)
-							shoot(p[0].position,0,p[0].dir,p[0].w,g.xmod,g.ymod);
+							shoot(p[0].position,0,p[0].dir,p[0].w);
 					}
-					if(p[0].punch){
+					if(p[0].punch&&p[0].hitCount>14&&p[0].fallCount>99){
 						if(p[0].punchCount<7){
 							int ix = 15;
 							int iy = 1;
@@ -1389,7 +1389,7 @@ void render(void)
 								glTexCoord2f(tx+(1.0/22.0), ty+(1.0/11.0)); glVertex2i(p[i].position[0]+p[i].w, p[i].position[1]-p[i].h);
 						}
 					}
-					else if(p[0].jump){
+					else if(p[0].jump&&p[0].fallCount>99&&p[0].jumpCount<900&&p[0].powerCount>49){
 						if(p[0].jumpCount<5){
 							int ix = 26;
 							int iy = 0;
@@ -1596,8 +1596,69 @@ void render(void)
 							glTexCoord2f(tx+(1.0/27.0),      ty+(1.0/50.0));    glVertex2i(p[i].position[0]-p[i].w, p[i].position[1]+p[i].h);
 							glTexCoord2f(tx, ty+(1.0/50.0));    glVertex2i(p[i].position[0]+p[i].w, p[i].position[1]+p[i].h);
 							glTexCoord2f(tx, ty+(1.0/11.0)); glVertex2i(p[i].position[0]+p[i].w, p[i].position[1]-p[i].h);
+					}if(p[0].powerCount<50&&p[0].hitCount>14&&p[0].fallCount>99){
+						if(p[0].powerCount<7){
+							int ix = 25;
+							int iy = 4;
+						//	if(p[i].walkFrame>6){
+						//		iy = 2;
+						//	}
+							float tx = (float)ix / 25.0;
+							float ty = (float)iy / 10.0+1.4/20.0;
+							glBegin(GL_QUADS);
+								glTexCoord2f(tx+(1.0/27.0),      ty+(1.0/11.0)); glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]-p[i].h);
+								glTexCoord2f(tx+(1.0/27.0),      ty+(1.0/50.0));    glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx, ty+(1.0/50.0));    glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx, ty+(1.0/11.0)); glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]-p[i].h);
+						}
+						else if(p[0].powerCount<14){
+							int ix = 25;
+							int iy = 4;
+						//	if(p[i].walkFrame>6){
+						//		iy = 2;
+						//	}
+							float tx = (float)ix / 25.0+1.2/25.0;
+							float ty = (float)iy / 10.0+1.4/20.0;
+							glBegin(GL_QUADS);
+								glTexCoord2f(tx+(1.0/27.0),      ty+(1.0/11.0)); glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]-p[i].h);
+								glTexCoord2f(tx+(1.0/27.0),      ty+(1.0/50.0));    glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx, ty+(1.0/50.0));    glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx, ty+(1.0/11.0)); glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]-p[i].h);
+						}
+						else if(p[0].powerCount<21){
+							int ix = 25;
+							int iy = 4;
+						//	if(p[i].walkFrame>6){
+						//		iy = 2;
+						//	}
+							float tx = (float)ix / 25.0+2.0/25.0;
+							float ty = (float)iy / 10.0+1.4/20.0;
+							glBegin(GL_QUADS);
+								glTexCoord2f(tx+(1.0/27.0),      ty+(1.0/11.0)); glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]-p[i].h);
+								glTexCoord2f(tx+(1.0/27.0),      ty+(1.0/50.0));    glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx, ty+(1.0/50.0));    glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx, ty+(1.0/11.0)); glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]-p[i].h);
+
+						}
+						else if(p[0].powerCount<50){
+							int ix = 25;
+							int iy = 4;
+						//	if(p[i].walkFrame>6){
+						//		iy = 2;
+						//	}
+							float tx = (float)ix / 25.0+3.0/25.0;
+							float ty = (float)iy / 10.0+1.4/20.0;
+							glBegin(GL_QUADS);
+								glTexCoord2f(tx+(1.0/27.0),      ty+(1.0/11.0)); glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]-p[i].h);
+								glTexCoord2f(tx+(1.0/27.0),      ty+(1.0/50.0));    glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx, ty+(1.0/50.0));    glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx, ty+(1.0/11.0)); glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]-p[i].h);
+							
+						}
+						if(p[0].powerCount==23)
+							shoot(p[0].position,0,p[0].dir,p[0].w);
 					}
-					if(p[0].punch){
+					if(p[0].punch&&p[0].hitCount>14&&p[0].fallCount>99){
 						if(p[0].punchCount<7){
 							int ix = 15;
 							int iy = 1;
@@ -1641,7 +1702,7 @@ void render(void)
 								glTexCoord2f(tx, ty+(1.0/11.0)); glVertex2i(p[i].position[0]+p[i].w, p[i].position[1]-p[i].h);
 						}
 					}
-					else if(p[0].jump){
+					else if(p[0].jump&&p[0].fallCount>99&&p[0].jumpCount<900&&p[0].powerCount>49){
 						if(p[0].jumpCount<5){
 							int ix = 26;
 							int iy = 0;
@@ -1844,11 +1905,7 @@ void render(void)
 				glPushMatrix();
 				glScalef(g.xmod,g.ymod,1.0);
 				glColor3f(1.0, 1.0, 1.0);
-				//if(p[i].dir==-1)
-					//glBindTexture(GL_TEXTURE_2D, g.walkBackTexture);
-				//if(p[i].dir==1)
-					glBindTexture(GL_TEXTURE_2D, g.walkTexture2);
-				//
+				glBindTexture(GL_TEXTURE_2D, g.walkTexture2);
 				glEnable(GL_ALPHA_TEST);
 				glAlphaFunc(GL_GREATER, 0.0f);
 				glColor4ub(255,255,255,255);
@@ -1867,7 +1924,69 @@ void render(void)
 							glTexCoord2f(tx+(1.0/40.0), ty+(1.0/90.0));    glVertex2i(p[i].position[0]+p[i].w, p[i].position[1]+p[i].h);
 							glTexCoord2f(tx+(1.0/40.0), ty+(1.0/10.0)); glVertex2i(p[i].position[0]+p[i].w, p[i].position[1]-p[i].h);
 					}
-					if(p[1].punch){
+					if(p[1].powerCount<50&&p[1].hitCount>14&&p[1].fallCount>99){
+						if(p[1].powerCount<7){
+							int ix = 10;
+							int iy = 4;
+						//	if(p[i].walkFrame>6){
+						//		iy = 2;
+						//	}
+							float tx = (float)ix / 26.0;
+							float ty = (float)iy / 9.0 +0.7/9.0;
+							glBegin(GL_QUADS);
+								glTexCoord2f(tx,      ty+(1.0/10.0)); glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]-p[i].h);
+								glTexCoord2f(tx,      ty);    glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx+(1.0/30.0),ty);    glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx+(1.0/30.0), ty+(1.0/10.0)); glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]-p[i].h);
+						}
+						else if(p[1].powerCount<14){
+							int ix = 11;
+							int iy = 4;
+						//	if(p[i].walkFrame>6){
+						//		iy = 2;
+						//	}
+							float tx = (float)ix / 26.0;
+							float ty = (float)iy / 9.0 +0.7/9.0;
+							glBegin(GL_QUADS);
+								glTexCoord2f(tx,      ty+(1.0/10.0)); glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]-p[i].h);
+								glTexCoord2f(tx,      ty);    glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx+(1.0/30.0),ty);    glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx+(1.0/30.0), ty+(1.0/10.0)); glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]-p[i].h);
+						}
+						else if(p[1].powerCount<21){
+							int ix = 12;
+							int iy = 4;
+						//	if(p[i].walkFrame>6){
+						//		iy = 2;
+						//	}
+							float tx = (float)ix / 26.0 + .25/26.0;
+							float ty = (float)iy / 9.0 +0.7/9.0;
+							glBegin(GL_QUADS);
+								glTexCoord2f(tx,      ty+(1.0/10.0)); glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]-p[i].h);
+								glTexCoord2f(tx,      ty);    glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx+(1.0/30.0),ty);    glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx+(1.0/30.0), ty+(1.0/10.0)); glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]-p[i].h);
+
+						}
+						else if(p[1].powerCount<50){
+							int ix = 13;
+							int iy = 4;
+						//	if(p[i].walkFrame>6){
+						//		iy = 2;
+						//	}
+							float tx = (float)ix / 26.0 + .4/26.0;
+							float ty = (float)iy / 9.0 +0.7/9.0;
+							glBegin(GL_QUADS);
+								glTexCoord2f(tx,      ty+(1.0/10.0)); glVertex2i(p[i].position[0]-p[i].w-10.0, p[i].position[1]-p[i].h);
+								glTexCoord2f(tx,      ty);    glVertex2i(p[i].position[0]-p[i].w-10.0, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx+(1.0/25.0),ty);    glVertex2i(p[i].position[0]+p[i].w+10.0, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx+(1.0/25.0), ty+(1.0/10.0)); glVertex2i(p[i].position[0]+p[i].w+10.0, p[i].position[1]-p[i].h);
+							
+						}
+						if(p[1].powerCount==23)
+							shoot(p[1].position,1,p[1].dir,p[1].w);
+					}
+					if(p[1].punch&&p[1].hitCount>14&&p[1].fallCount>99){
 						if(p[1].punchCount<3){
 							int ix = 15;
 							int iy = 1;
@@ -1939,7 +2058,7 @@ void render(void)
 								glTexCoord2f(tx+(1.0/35.0), ty+(1.0/9.5)); glVertex2i(p[i].position[0]+p[i].w, p[i].position[1]-p[i].h);
 						}
 					}
-					else if(p[1].jump){
+					else if(p[1].jump&&p[1].fallCount>99&&p[1].jumpCount<900&&p[1].powerCount>49){
 						if(p[1].jumpCount<5){
 							int ix = 26;
 							int iy = 0;
@@ -2221,7 +2340,69 @@ void render(void)
 							glTexCoord2f(tx, ty+(1.0/90.0));    glVertex2i(p[i].position[0]+p[i].w, p[i].position[1]+p[i].h);
 							glTexCoord2f(tx, ty+(1.0/10.0)); glVertex2i(p[i].position[0]+p[i].w, p[i].position[1]-p[i].h);
 					}
-					if(p[1].punch){
+					if(p[1].powerCount<50&&p[1].hitCount>14&&p[1].fallCount>99){
+						if(p[1].powerCount<7){
+							int ix = 10;
+							int iy = 4;
+						//	if(p[i].walkFrame>6){
+						//		iy = 2;
+						//	}
+							float tx = (float)ix / 26.0;
+							float ty = (float)iy / 9.0 +0.7/9.0;
+							glBegin(GL_QUADS);
+								glTexCoord2f(tx+(1.0/30.0),      ty+(1.0/10.0)); glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]-p[i].h);
+								glTexCoord2f(tx+(1.0/30.0),      ty);    glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx,ty);    glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx, ty+(1.0/10.0)); glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]-p[i].h);
+						}
+						else if(p[1].powerCount<14){
+							int ix = 11;
+							int iy = 4;
+						//	if(p[i].walkFrame>6){
+						//		iy = 2;
+						//	}
+							float tx = (float)ix / 26.0;
+							float ty = (float)iy / 9.0 +0.7/9.0;
+							glBegin(GL_QUADS);
+								glTexCoord2f(tx+(1.0/30.0),      ty+(1.0/10.0)); glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]-p[i].h);
+								glTexCoord2f(tx+(1.0/30.0),      ty);    glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx,ty);    glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx, ty+(1.0/10.0)); glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]-p[i].h);
+						}
+						else if(p[1].powerCount<21){
+							int ix = 12;
+							int iy = 4;
+						//	if(p[i].walkFrame>6){
+						//		iy = 2;
+						//	}
+							float tx = (float)ix / 26.0 + .25/26.0;
+							float ty = (float)iy / 9.0 +0.7/9.0;
+							glBegin(GL_QUADS);
+								glTexCoord2f(tx+(1.0/30.0),      ty+(1.0/10.0)); glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]-p[i].h);
+								glTexCoord2f(tx+(1.0/30.0),      ty);    glVertex2i(p[i].position[0]-p[i].w-7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx,ty);    glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx, ty+(1.0/10.0)); glVertex2i(p[i].position[0]+p[i].w+7.5, p[i].position[1]-p[i].h);
+
+						}
+						else if(p[1].powerCount<50){
+							int ix = 13;
+							int iy = 4;
+						//	if(p[i].walkFrame>6){
+						//		iy = 2;
+						//	}
+							float tx = (float)ix / 26.0 + .4/26.0;
+							float ty = (float)iy / 9.0 +0.7/9.0;
+							glBegin(GL_QUADS);
+								glTexCoord2f(tx+(1.0/25.0),      ty+(1.0/10.0)); glVertex2i(p[i].position[0]-p[i].w-10.0, p[i].position[1]-p[i].h);
+								glTexCoord2f(tx+(1.0/25.0),      ty);    glVertex2i(p[i].position[0]-p[i].w-10.0, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx,ty);    glVertex2i(p[i].position[0]+p[i].w+10.0, p[i].position[1]+p[i].h);
+								glTexCoord2f(tx, ty+(1.0/10.0)); glVertex2i(p[i].position[0]+p[i].w+10.0, p[i].position[1]-p[i].h);
+							
+						}
+						if(p[1].powerCount==23)
+							shoot(p[1].position,1,p[1].dir,p[1].w);
+					}
+					if(p[1].punch&&p[1].hitCount>14&&p[1].fallCount>99&&p[1].powerCount>49){
 						if(p[1].punchCount<3){
 							int ix = 15;
 							int iy = 1;
@@ -2293,7 +2474,7 @@ void render(void)
 								glTexCoord2f(tx, ty+(1.0/9.4)); glVertex2i(p[i].position[0]+p[i].w, p[i].position[1]-p[i].h);
 						}
 					}
-					else if(p[1].jump){
+					else if(p[1].jump&&p[1].fallCount>99&&p[1].jumpCount<900&&p[1].powerCount>49){
 						if(p[1].jumpCount<5){
 							int ix = 26;
 							int iy = 0;
@@ -2574,15 +2755,21 @@ void render(void)
 		printf("%d\n",hit);
 	if (hit == 1||hit == 3){
 		p[1].shootHitCount=0;
+		p[0].punchCount=0;
+		p[0].punch=false;
 		p[0].health -= 20;
 		p[0].fallCount=0;
+		p[0].jumpCount=1000;
 		p[0].power+=5;
 		p[1].power+=10;
 	}
 	if (hit == 2||hit == 3){
 		p[0].shootHitCount=0;
 		p[1].health -= 20;
+		p[1].punchCount=0;
+		p[1].punch=false;
 		p[1].fallCount=0;
+		p[1].jumpCount=1000;
 		p[1].power+=5;
 		p[0].power+=10;
 	}
@@ -2597,6 +2784,7 @@ void render(void)
 		if(p[0].punchCount>20){
 			p[0].punch=0;
 			p[0].punchCount=0;
+			p[0].jumpCount=5;
 		}
 	}
 	if(p[1].punch){
@@ -2604,6 +2792,7 @@ void render(void)
 		if(p[1].punchCount>20){
 			p[1].punch=0;
 			p[1].punchCount=0;
+			p[1].jumpCount=5;
 		}
 	}
 	if(p[0].powerCount<50){
@@ -2611,12 +2800,14 @@ void render(void)
 	}
 	if(p[0].powerCount==50){
 		p[0].shootCount=0;
+		p[0].jumpCount=5;
 	}
 	if(p[1].powerCount<50){
 		p[1].powerCount++;
 	}
 	if(p[1].powerCount==50){
 		p[1].shootCount=0;
+		p[1].jumpCount=5;
 	}
 	if(p[0].hitCount<15)
 		p[0].hitCount++;
@@ -2626,6 +2817,10 @@ void render(void)
 		p[0].fallCount++;
 	if(p[1].fallCount<100)
 		p[1].fallCount++;
+	if(p[0].hitCount>14)
+		p[0].jumpCount=5;
+	if(p[1].hitCount>14)
+		p[1].jumpCount=5;
 	if(p[0].jump){
 		p[0].jumpCount++;
 	}
@@ -2638,8 +2833,6 @@ void render(void)
 	else{
 		p[1].jumpCount=0;
 	}
-	p[0].power=100;
-	p[1].power=100;
 	
 	ggprint8b(&r, 16, c, "hold right arrow to walk right");
 	ggprint8b(&r, 16, c, "hold left arrow to walk left");

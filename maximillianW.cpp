@@ -136,11 +136,11 @@ void showhealth(int health,float cx,float cy,float h,int name,int index,int powe
 	}
 }
 
-void shoot(Vec pos,int ind, int dir, int w,Flt xmod,Flt ymod){
+void shoot(Vec pos,int ind, int dir, int w){
 	if(ind == 0){
 		b[0][bullets1].pos[0] = pos[0] + (w/2*dir);
 		b[0][bullets1].pos[1] = pos[1];
-		b[0][bullets1].vel = 4 * dir;
+		b[0][bullets1].vel = 10 * dir;
 			int ix = 25.0;
 			int iy = 4;
 		//	if(p[i].walkFrame>6){
@@ -148,25 +148,64 @@ void shoot(Vec pos,int ind, int dir, int w,Flt xmod,Flt ymod){
 		//	}
 			float tx = (float)ix / 25.0+4.0/25.0;
 			float ty = (float)iy / 10.0+1.4/20.0;
-			glBegin(GL_QUADS);
-				glTexCoord2f(tx,      ty+(1.0/11.0)); glVertex2i(pos[0]-5, pos[1]-5);
-				glTexCoord2f(tx,      ty+(1.0/50.0));    glVertex2i(pos[0]-5, pos[1]+5);
-				glTexCoord2f(tx+(1.0/27.0), ty+(1.0/50.0));    glVertex2i(pos[0]+5, pos[1]+5);
-				glTexCoord2f(tx+(1.0/27.0), ty+(1.0/11.0)); glVertex2i(pos[0]+5, pos[1]-5);
+			if(dir==1){
+				glBegin(GL_QUADS);
+					glTexCoord2f(tx,      ty+(1.0/11.0)); glVertex2i(pos[0]-5, pos[1]-5);
+					glTexCoord2f(tx,      ty+(1.0/50.0));    glVertex2i(pos[0]-5, pos[1]+5);
+					glTexCoord2f(tx+(1.0/27.0), ty+(1.0/50.0));    glVertex2i(pos[0]+5, pos[1]+5);
+					glTexCoord2f(tx+(1.0/27.0), ty+(1.0/11.0)); glVertex2i(pos[0]+5, pos[1]-5);
+			}else{
+				glBegin(GL_QUADS);
+					glTexCoord2f(tx+(1.0/27.0),      ty+(1.0/11.0)); glVertex2i(pos[0]-5, pos[1]-5);
+					glTexCoord2f(tx+(1.0/27.0),      ty+(1.0/50.0));    glVertex2i(pos[0]-5, pos[1]+5);
+					glTexCoord2f(tx, ty+(1.0/50.0));    glVertex2i(pos[0]+5, pos[1]+5);
+					glTexCoord2f(tx, ty+(1.0/11.0)); glVertex2i(pos[0]+5, pos[1]-5);
+			}
 		glEnd();
 		bullets1++;
 	}
 	if(ind == 1){
 		b[1][bullets2].pos[0] = pos[0] + (w/2*dir);
 		b[1][bullets2].pos[1] = pos[1];
-		b[1][bullets2].vel = 4 * dir;
+		b[1][bullets2].vel = 10 * dir;
+
+		int ix = 14;
+		int iy = 4;
+	//	if(p[i].walkFrame>6){
+	//		iy = 2;
+	//	}
+		float tx = (float)ix / 26.0 + .4/26.0;
+		float ty = (float)iy / 9.0 +0.7/9.0;
+		if(dir==1){
+			glBegin(GL_QUADS);
+				glTexCoord2f(tx,      ty+(1.0/10.0)); glVertex2i(pos[0]-5, pos[1]-5);
+				glTexCoord2f(tx,      ty);    glVertex2i(pos[0]-5,pos[1]+5);
+				glTexCoord2f(tx+(1.0/25.0),ty);    glVertex2i(pos[0]+5, pos[1]+5);
+				glTexCoord2f(tx+(1.0/25.0), ty+(1.0/10.0)); glVertex2i(pos[0]+5, pos[1]-5);
+		}else{
+			glBegin(GL_QUADS);
+				glTexCoord2f(tx+(1.0/25.0),      ty+(1.0/10.0)); glVertex2i(pos[0]-5, pos[1]-5);
+				glTexCoord2f(tx+(1.0/25.0),      ty);    glVertex2i(pos[0]-5, pos[1]+5);
+				glTexCoord2f(tx,ty);    glVertex2i(pos[0]+5, pos[1]+5);
+				glTexCoord2f(tx, ty+(1.0/10.0)); glVertex2i(pos[0]+5, pos[1]-5);
+
+		}
+		glEnd();
 		bullets2++;
 	}
 }
 
 int moveBullets(Vec p1,Vec p2, float w, float h,int xres,int health1,int health2,GLuint walkTexture,GLuint walkTexture2,Flt xmod,Flt ymod){
 	int hit = 0;
+	glPushMatrix();
+	glScalef(xmod,ymod,1.0);
 	for(int i=0;i<bullets1;i++){
+		int dir;
+		if(b[0][i].vel<0){
+			dir=-1;
+		}else{
+			dir=1;
+		}
 		b[0][i].pos[0]+= b[0][i].vel;
 		float distx = b[0][i].pos[0]-p2[0];
 		float disty = b[0][i].pos[1]-p2[1];
@@ -191,8 +230,8 @@ int moveBullets(Vec p1,Vec p2, float w, float h,int xres,int health1,int health2
 			}
 		}
 		//printf("in here");
-		glPushMatrix();
-		glScalef(xmod,ymod,1.0);
+//		glPushMatrix();
+//		glScalef(xmod,ymod,1.0);
 		glColor3f(1.0, 1.0, 1.0);
 		//if(p[i].dir==-1)
 			//glBindTexture(GL_TEXTURE_2D, g.walkBackTexture);
@@ -202,107 +241,208 @@ int moveBullets(Vec p1,Vec p2, float w, float h,int xres,int health1,int health2
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.0f);
 		glColor4ub(255,255,255,255);
-		
-		if(pdistx<20){
-			int ix = 25.0;
-			int iy = 4;
-		//	if(p[i].walkFrame>6){
-		//		iy = 2;
-		//	}
-			float tx = (float)ix / 25.0+4.2/25.0;
-			float ty = (float)iy / 10.0+1.4/20.0;
-			glBegin(GL_QUADS);
-				glTexCoord2f(tx,      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
-				glTexCoord2f(tx,      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
-				glTexCoord2f(tx+(1.0/40.0), ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
-				glTexCoord2f(tx+(1.0/40.0), ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
+		if(dir==1){
+			if(pdistx<20){
+				int ix = 25.0;
+				int iy = 4;
+			//	if(p[i].walkFrame>6){
+			//		iy = 2;
+			//	}
+				float tx = (float)ix / 25.0+4.2/25.0;
+				float ty = (float)iy / 10.0+1.4/20.0;
+				glBegin(GL_QUADS);
+					glTexCoord2f(tx,      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
+					glTexCoord2f(tx,      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx+(1.0/40.0), ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx+(1.0/40.0), ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
+				}
+			else if(pdistx<35){
+				int ix = 25.0;
+				int iy = 4;
+			//	if(p[i].walkFrame>6){
+			//		iy = 2;
+			//	}
+				float tx = (float)ix / 25.0+4.8/25.0;
+				float ty = (float)iy / 10.0+1.4/20.0;
+				glBegin(GL_QUADS);
+					glTexCoord2f(tx,      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
+					glTexCoord2f(tx,      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx+(1.0/40.0), ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx+(1.0/40.0), ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
+		}
+			else if(pdistx<50){
+				int ix = 25.0;
+				int iy = 4;
+			//	if(p[i].walkFrame>6){
+			//		iy = 2;
+			//	}
+				float tx = (float)ix / 25.0+5.6/25.0;
+				float ty = (float)iy / 10.0+1.4/20.0;
+				glBegin(GL_QUADS);
+					glTexCoord2f(tx,      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
+					glTexCoord2f(tx,      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx+(1.0/40.0), ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx+(1.0/40.0), ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
 			}
-		else if(pdistx<35){
-			int ix = 25.0;
-			int iy = 4;
-		//	if(p[i].walkFrame>6){
-		//		iy = 2;
-		//	}
-			float tx = (float)ix / 25.0+4.8/25.0;
-			float ty = (float)iy / 10.0+1.4/20.0;
-			glBegin(GL_QUADS);
-				glTexCoord2f(tx,      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
-				glTexCoord2f(tx,      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
-				glTexCoord2f(tx+(1.0/40.0), ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
-				glTexCoord2f(tx+(1.0/40.0), ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
-	}
-		else if(pdistx<50){
-			int ix = 25.0;
-			int iy = 4;
-		//	if(p[i].walkFrame>6){
-		//		iy = 2;
-		//	}
-			float tx = (float)ix / 25.0+5.6/25.0;
-			float ty = (float)iy / 10.0+1.4/20.0;
-			glBegin(GL_QUADS);
-				glTexCoord2f(tx,      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
-				glTexCoord2f(tx,      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
-				glTexCoord2f(tx+(1.0/40.0), ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
-				glTexCoord2f(tx+(1.0/40.0), ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
+			else if(pdistx<65){
+				int ix = 25.0;
+				int iy = 4;
+			//	if(p[i].walkFrame>6){
+			//		iy = 2;
+			//	}
+				float tx = (float)ix / 25.0+6.2/25.0;
+				float ty = (float)iy / 10.0+1.4/20.0;
+				glBegin(GL_QUADS);
+					glTexCoord2f(tx,      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
+					glTexCoord2f(tx,      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx+(1.0/40.0), ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx+(1.0/40.0), ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
+			}
+			else if(pdistx<80){
+				int ix = 25.0;
+				int iy = 4;
+			//	if(p[i].walkFrame>6){
+			//		iy = 2;
+			//	}
+				float tx = (float)ix / 25.0+6.8/25.0;
+				float ty = (float)iy / 10.0+1.4/20.0;
+				glBegin(GL_QUADS);
+					glTexCoord2f(tx,      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
+					glTexCoord2f(tx,      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx+(1.0/40.0), ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx+(1.0/40.0), ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
+			}
+			else if(pdistx<95){
+				int ix = 25.0;
+				int iy = 4;
+			//	if(p[i].walkFrame>6){
+			//		iy = 2;
+			//	}
+				float tx = (float)ix / 25.0+7.6/25.0;
+				float ty = (float)iy / 10.0+1.4/20.0;
+				glBegin(GL_QUADS);
+					glTexCoord2f(tx,      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
+					glTexCoord2f(tx,      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx+(1.0/40.0), ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx+(1.0/40.0), ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
+			}
+			else{
+				int ix = 25.0;
+				int iy = 4;
+			//	if(p[i].walkFrame>6){
+			//		iy = 2;
+			//	}
+				float tx = (float)ix / 25.0+8.3/25.0;
+				float ty = (float)iy / 10.0+1.4/20.0;
+				glBegin(GL_QUADS);
+					glTexCoord2f(tx,      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
+					glTexCoord2f(tx,      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx+(1.0/40.0), ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx+(1.0/40.0), ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
+			}
+		}else{
+			if(pdistx<20){
+				int ix = 25.0;
+				int iy = 4;
+			//	if(p[i].walkFrame>6){
+			//		iy = 2;
+			//	}
+				float tx = (float)ix / 25.0+4.2/25.0;
+				float ty = (float)iy / 10.0+1.4/20.0;
+				glBegin(GL_QUADS);
+					glTexCoord2f(tx+(1.0/40.0),      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
+					glTexCoord2f(tx+(1.0/40.0),      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx, ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx, ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
+				}
+			else if(pdistx<35){
+				int ix = 25.0;
+				int iy = 4;
+			//	if(p[i].walkFrame>6){
+			//		iy = 2;
+			//	}
+				float tx = (float)ix / 25.0+4.8/25.0;
+				float ty = (float)iy / 10.0+1.4/20.0;
+				glBegin(GL_QUADS);
+					glTexCoord2f(tx+(1.0/40.0),      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
+					glTexCoord2f(tx+(1.0/40.0),      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx, ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx, ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
 		}
-		else if(pdistx<65){
-			int ix = 25.0;
-			int iy = 4;
-		//	if(p[i].walkFrame>6){
-		//		iy = 2;
-		//	}
-			float tx = (float)ix / 25.0+6.2/25.0;
-			float ty = (float)iy / 10.0+1.4/20.0;
-			glBegin(GL_QUADS);
-				glTexCoord2f(tx,      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
-				glTexCoord2f(tx,      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
-				glTexCoord2f(tx+(1.0/40.0), ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
-				glTexCoord2f(tx+(1.0/40.0), ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
-		}
-		else if(pdistx<80){
-			int ix = 25.0;
-			int iy = 4;
-		//	if(p[i].walkFrame>6){
-		//		iy = 2;
-		//	}
-			float tx = (float)ix / 25.0+6.8/25.0;
-			float ty = (float)iy / 10.0+1.4/20.0;
-			glBegin(GL_QUADS);
-				glTexCoord2f(tx,      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
-				glTexCoord2f(tx,      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
-				glTexCoord2f(tx+(1.0/40.0), ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
-				glTexCoord2f(tx+(1.0/40.0), ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
-		}
-		else if(pdistx<95){
-			int ix = 25.0;
-			int iy = 4;
-		//	if(p[i].walkFrame>6){
-		//		iy = 2;
-		//	}
-			float tx = (float)ix / 25.0+7.6/25.0;
-			float ty = (float)iy / 10.0+1.4/20.0;
-			glBegin(GL_QUADS);
-				glTexCoord2f(tx,      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
-				glTexCoord2f(tx,      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
-				glTexCoord2f(tx+(1.0/40.0), ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
-				glTexCoord2f(tx+(1.0/40.0), ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
-		}
-		else{
-			int ix = 25.0;
-			int iy = 4;
-		//	if(p[i].walkFrame>6){
-		//		iy = 2;
-		//	}
-			float tx = (float)ix / 25.0+8.3/25.0;
-			float ty = (float)iy / 10.0+1.4/20.0;
-			glBegin(GL_QUADS);
-				glTexCoord2f(tx,      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
-				glTexCoord2f(tx,      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
-				glTexCoord2f(tx+(1.0/40.0), ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
-				glTexCoord2f(tx+(1.0/40.0), ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
+			else if(pdistx<50){
+				int ix = 25.0;
+				int iy = 4;
+			//	if(p[i].walkFrame>6){
+			//		iy = 2;
+			//	}
+				float tx = (float)ix / 25.0+5.6/25.0;
+				float ty = (float)iy / 10.0+1.4/20.0;
+				glBegin(GL_QUADS);
+					glTexCoord2f(tx+(1.0/40.0),      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
+					glTexCoord2f(tx+(1.0/40.0),      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx, ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx, ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
+			}
+			else if(pdistx<65){
+				int ix = 25.0;
+				int iy = 4;
+			//	if(p[i].walkFrame>6){
+			//		iy = 2;
+			//	}
+				float tx = (float)ix / 25.0+6.2/25.0;
+				float ty = (float)iy / 10.0+1.4/20.0;
+				glBegin(GL_QUADS);
+					glTexCoord2f(tx+(1.0/40.0),      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
+					glTexCoord2f(tx+(1.0/40.0),      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx, ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx, ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
+			}
+			else if(pdistx<80){
+				int ix = 25.0;
+				int iy = 4;
+			//	if(p[i].walkFrame>6){
+			//		iy = 2;
+			//	}
+				float tx = (float)ix / 25.0+6.8/25.0;
+				float ty = (float)iy / 10.0+1.4/20.0;
+				glBegin(GL_QUADS);
+					glTexCoord2f(tx+(1.0/40.0),      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
+					glTexCoord2f(tx+(1.0/40.0),      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx, ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx, ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
+			}
+			else if(pdistx<95){
+				int ix = 25.0;
+				int iy = 4;
+			//	if(p[i].walkFrame>6){
+			//		iy = 2;
+			//	}
+				float tx = (float)ix / 25.0+7.6/25.0;
+				float ty = (float)iy / 10.0+1.4/20.0;
+				glBegin(GL_QUADS);
+					glTexCoord2f(tx+(1.0/40.0),      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
+					glTexCoord2f(tx+(1.0/40.0),      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx, ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx, ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
+			}
+			else{
+				int ix = 25.0;
+				int iy = 4;
+			//	if(p[i].walkFrame>6){
+			//		iy = 2;
+			//	}
+				float tx = (float)ix / 25.0+8.3/25.0;
+				float ty = (float)iy / 10.0+1.4/20.0;
+				glBegin(GL_QUADS);
+					glTexCoord2f(tx+(1.0/40.0),      ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]-10);
+					glTexCoord2f(tx+(1.0/40.0),      ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]-15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx, ty+(1.0/37.0));    glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]+10);
+					glTexCoord2f(tx, ty+(1.0/20.0)); glVertex2i(b[0][i].pos[0]+15, b[0][i].pos[1]-10);
+			}
 		}
 		glEnd();
-		glPopMatrix();
+//		glScalef(1.0/xmod,1.0/ymod,1.0);
+//		glPopMatrix();
 		glBindTexture(GL_TEXTURE_2D, 0);
 		//glBegin(GL_QUADS);
 		//glColor3ub(100,100,255);
@@ -313,10 +453,16 @@ int moveBullets(Vec p1,Vec p2, float w, float h,int xres,int health1,int health2
 		//glEnd();
 	}
 	for(int i=0;i<bullets2;i++){
+		int dir;
+		if(b[1][i].vel<0){
+			dir=-1;
+		}else{
+			dir=1;
+		}
 		b[1][i].pos[0]+= b[1][i].vel;
 		float distx = b[1][i].pos[0]-p1[0];
 		float disty = b[1][i].pos[1]-p1[1];
-		float pdistx = b[0][i].pos[0]-p2[0];
+		float pdistx = b[1][i].pos[0]-p2[0];
 		if(distx<0)
 			distx=-distx;
 		if(pdistx<0)
@@ -336,8 +482,83 @@ int moveBullets(Vec p1,Vec p2, float w, float h,int xres,int health1,int health2
 				b[1][j] = b[1][j+1];
 			}
 		}
+		//printf("in here");
+//		glPushMatrix();
+//		glScalef(xmod,ymod,1.0);
+		glColor3f(1.0, 1.0, 1.0);
+		//if(p[i].dir==-1)
+			//glBindTexture(GL_TEXTURE_2D, g.walkBackTexture);
+		//if(p[i].dir==1)
+		glBindTexture(GL_TEXTURE_2D, walkTexture2);
+		//
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.0f);
+		glColor4ub(255,255,255,255);
+		if(dir==1){
+			if(pdistx<50){
+				int ix = 14;
+				int iy = 5;
+			//	if(p[i].walkFrame>6){
+			//		iy = 2;
+			//	}
+				float tx = (float)ix / 26.0 + .5/26.0;
+				float ty = (float)iy / 9.0-.05/9.0;
+				glBegin(GL_QUADS);
+				glTexCoord2f(tx,      ty+(1.0/30.0)); glVertex2i(b[1][i].pos[0]-15, b[1][i].pos[1]-15);
+				glTexCoord2f(tx,      ty);    glVertex2i(b[1][i].pos[0]-15,b[1][i].pos[1]+15);
+				glTexCoord2f(tx+(1.0/48.0),ty);    glVertex2i(b[1][i].pos[0]+15, b[1][i].pos[1]+15);
+				glTexCoord2f(tx+(1.0/48.0), ty+(1.0/30.0)); glVertex2i(b[1][i].pos[0]+15, b[1][i].pos[1]-15);
+			}else{
+				int ix = 14;
+				int iy = 5;
+			//	if(p[i].walkFrame>6){
+			//		iy = 2;
+			//	}
+				float tx = (float)ix / 26.0 + .5/26.0+(1.0/48.0);
+				float ty = (float)iy / 9.0-.05/9.0;
+				glBegin(GL_QUADS);
+				glTexCoord2f(tx,      ty+(1.0/30.0)); glVertex2i(b[1][i].pos[0]-15, b[1][i].pos[1]-15);
+				glTexCoord2f(tx,      ty);    glVertex2i(b[1][i].pos[0]-15,b[1][i].pos[1]+15);
+				glTexCoord2f(tx+(1.0/48.0),ty);    glVertex2i(b[1][i].pos[0]+15, b[1][i].pos[1]+15);
+				glTexCoord2f(tx+(1.0/48.0), ty+(1.0/30.0)); glVertex2i(b[1][i].pos[0]+15, b[1][i].pos[1]-15);
+
+			}
+		}else{
+			if(pdistx<50){
+				int ix = 14;
+				int iy = 5;
+			//	if(p[i].walkFrame>6){
+			//		iy = 2;
+			//	}
+				float tx = (float)ix / 26.0 + .5/26.0;
+				float ty = (float)iy / 9.0-.05/9.0;
+				glBegin(GL_QUADS);
+				glTexCoord2f(tx+(1.0/48.0),      ty+(1.0/30.0)); glVertex2i(b[1][i].pos[0]-15, b[1][i].pos[1]-15);
+				glTexCoord2f(tx+(1.0/48.0),      ty);    glVertex2i(b[1][i].pos[0]-15,b[1][i].pos[1]+15);
+				glTexCoord2f(tx,ty);    glVertex2i(b[1][i].pos[0]+15, b[1][i].pos[1]+15);
+				glTexCoord2f(tx, ty+(1.0/30.0)); glVertex2i(b[1][i].pos[0]+15, b[1][i].pos[1]-15);
+			}else{
+				int ix = 14;
+				int iy = 5;
+			//	if(p[i].walkFrame>6){
+			//		iy = 2;
+			//	}
+				float tx = (float)ix / 26.0 + .5/26.0+(1.0/48.0);
+				float ty = (float)iy / 9.0-.05/9.0;
+				glBegin(GL_QUADS);
+				glTexCoord2f(tx+(1.0/48.0),      ty+(1.0/30.0)); glVertex2i(b[1][i].pos[0]-15, b[1][i].pos[1]-15);
+				glTexCoord2f(tx+(1.0/48.0),      ty);    glVertex2i(b[1][i].pos[0]-15,b[1][i].pos[1]+15);
+				glTexCoord2f(tx,ty);    glVertex2i(b[1][i].pos[0]+15, b[1][i].pos[1]+15);
+				glTexCoord2f(tx, ty+(1.0/30.0)); glVertex2i(b[1][i].pos[0]+15, b[1][i].pos[1]-15);
+
+			}
+		}
 		glEnd();
+		//~ glScalef(1.0/xmod,1.0/ymod,1.0);
+		//~ glPopMatrix();
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
+	glPopMatrix();
 	return hit;
 }
 	
@@ -404,7 +625,7 @@ int punch(Vec att,float ah,float aw, Vec vic, int health){
 	if(disty<0)
 		disty=-disty;
 	if(distx<aw*2&&disty<ah){
-		return health-5;
+		return health-2;
 	}
 	return health;
 }
