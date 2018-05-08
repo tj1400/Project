@@ -55,6 +55,8 @@ extern void showhealth(int,float,float,float,int,int,int,Flt,Flt);
 extern void name1(Rect *r,int x, unsigned int c); 
 extern int punch(Vec,float,float,Vec,int);
 extern void shoot(Vec,int,int,int);
+extern void GameOver();
+extern void GameOver1();
 extern int moveBullets(Vec,Vec,float,float,int,int,int,GLuint,GLuint,Flt,Flt);
 extern double timer();
 extern double timer2();
@@ -1252,7 +1254,18 @@ void render(void)
 	glDisable(GL_ALPHA_TEST);
 
 	for(int i=0;i<2;i++){
-		if(p[i].health>0){
+		if(p[i].health<0||p[i].health==0)
+		{
+		   if(i==1)
+		   { 
+		    GameOver();
+		   }
+		   if(i==0)
+		   {
+		       GameOver1();
+		   }
+		}
+		else{
 			if(p[i].hitCount>14&&p[i].fallCount>99&&p[i].powerCount>49){
 				p[i].position[0]+=p[i].vel[0];
 			}

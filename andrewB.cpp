@@ -49,12 +49,20 @@ void GameOver()
        // glMatrixMode(GL_MODELVIEW);
 */
     Rect r;
-    r.bot = 1300;
-    r.left = 1150;
+    r.bot = 1100;
+    r.left = 850;
     r.center = 0;
-    ggprint16(&r, 16, 0x00FFFFFF, "Game Over You Win");
+    ggprint16(&r, 16, 0x00FFFFFF, "GAME OVER P1 WINS");
 	   // glPopMatrix();
 
+}
+void GameOver1()
+{
+    Rect r;
+    r.bot = 1100;
+    r.left = 850;
+    r.center = 0;
+    ggprint16(&r, 16, 0x00FFFFFF, "GAME OVER P2 WINS");
 }
 /*
 void gameover()
