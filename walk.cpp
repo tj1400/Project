@@ -1027,6 +1027,11 @@ int checkKeys(XEvent *e)
 			p[0].jumpCount=1000;
 			p[0].power=0;
 			break;
+		case XK_p:
+			p[1].powerCount=0;
+			p[1].jumpCount=1000;
+			p[1].power=0;
+			break;
 		case XK_w:
 			if(p[1].jump<2){
 				p[1].jump++;
